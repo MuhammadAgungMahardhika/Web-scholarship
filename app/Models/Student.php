@@ -12,6 +12,11 @@ class Student extends Model
     use HasFactory;
     use Blameable;
 
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -25,5 +30,13 @@ class Student extends Model
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
+    }
+    public function city()
+    {
+        return $this->belongsTo(City::class);
     }
 }

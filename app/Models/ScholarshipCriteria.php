@@ -6,23 +6,20 @@ use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Criteria extends Model
+class ScholarshipCriteria extends Model
 {
-    /** @use HasFactory<\Database\Factories\CriteriaFactory> */
+    /** @use HasFactory<\Database\Factories\ScholarshipCriteriaFactory> */
     use HasFactory;
     use Blameable;
+    public $incrementing = true;
 
-    public function scolarshipCriterias()
-    {
-        return $this->hasMany(ScholarshipCriteria::class);
-    }
     public function scholarship()
     {
         return $this->belongsTo(Scholarship::class);
     }
 
-    public function scoringScales()
+    public function criteria()
     {
-        return $this->hasMany(ScoringScale::class);
+        return $this->belongsTo(Criteria::class);
     }
 }

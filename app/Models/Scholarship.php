@@ -12,8 +12,12 @@ class Scholarship extends Model
     use HasFactory;
     use Blameable;
 
-    public function criterias()
+    public function applications()
     {
-        return $this->hasMany(Criteria::class);
+        return $this->hasMany(Application::class);
+    }
+    public function scolarshipCriterias()
+    {
+        return $this->hasMany(ScholarshipCriteria::class);
     }
 }

@@ -2,10 +2,15 @@
 
 namespace App\Filament\Resources\Students\Schemas;
 
+use App\Filament\Resources\Users\Schemas\UserForm;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class StudentForm
@@ -34,6 +39,23 @@ class StudentForm
                     ->relationship('department', 'name')
                     ->preload()
                     ->searchable(),
+                Select::make('province_id')
+                    ->label('Provinsi')
+                    ->relationship('province', 'name')
+                    ->live()
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        $set('city_id', null);
+                    })
+                    ->searchable()
+                    ->preload(),
+                Select::make('city_id')
+                    ->label('Kota')
+                    ->relationship('city', 'name', modifyQueryUsing: function (Get $get, $query) {
+                        $provinceId = $get('province_id');
+                        $query->where('province_id', $provinceId);
+                    })
+                    ->searchable()
+                    ->preload(),
                 TextInput::make('student_number')
                     ->required(),
                 TextInput::make('fullname')

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('application_id'); // FK to applications (added later)
             $table->string('document_type', 100); // e.g., Transcript, Letter of Recommendation
             $table->string('file_path', 255); // File storage path
+            $table->boolean('is_verified')->default(false);
             $table->timestamp('uploaded_at')->useCurrent(); // Default CURRENT_TIMESTAMP
 
             $table->string('created_by')->nullable();

@@ -14,8 +14,13 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id(); // Primary key
             $table->unsignedBigInteger('user_id')->unique(); // FK to users table (later)
-            $table->unsignedBigInteger('faculty_id')->unique(); // FK to users table (later)
-            $table->unsignedBigInteger('department_id')->unique(); // FK to users table (later)
+            $table->unsignedBigInteger('faculty_id'); // FK to users table (later)
+            $table->unsignedBigInteger('department_id'); // FK to users table (later)
+
+            // lokasi
+            $table->unsignedBigInteger('province_id'); // FK to users table (later)
+            $table->unsignedBigInteger('city_id'); // FK to users table (later)
+
             $table->string('student_number', 50)->unique(); // NIM
             $table->string('fullname', 50); // NIM
             $table->text('address')->nullable();
@@ -23,6 +28,8 @@ return new class extends Migration
             $table->date('date_of_birth')->nullable();
             $table->decimal('gpa', 3, 2)->nullable();
             $table->decimal('parent_income', 19, 2)->nullable();
+
+            $table->enum('status', ['mandiri', 'reguler']);
 
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();

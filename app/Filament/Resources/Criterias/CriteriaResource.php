@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Filament\Resources\Departments;
+namespace App\Filament\Resources\Criterias;
 
-use App\Filament\Resources\Departments\Pages\ManageDepartments;
-use App\Models\Department;
+use App\Filament\Resources\Criterias\Pages\ManageCriterias;
+use App\Models\Criteria;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
@@ -17,45 +18,46 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
-class DepartmentResource extends Resource
+class CriteriaResource extends Resource
 {
-    protected static ?string $model = Department::class;
+    protected static ?string $model = Criteria::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    protected static string | \UnitEnum | null $navigationGroup = "Master";
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('name')
                     ->required(),
-                Select::make('faculty_id')
-                    ->relationship('faculty', 'name')
-                    ->preload()
-                    ->searchable(),
-
+                Repeater::make('scoringScales')
+                    ->relationship()
+                    ->schema([
+                        TextInput::make('value')
+                            ->required(),
+                        TextInput::make('score')
+                            ->required()
+                            ->numeric(),
+                    ])
+                    ->columnSpanFull()->columns(2)->grid(3)
             ]);
     }
 
-    public static function infolist(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                TextEntry::make('name'),
-                TextEntry::make('faculty_id')
-                    ->numeric(),
-                TextEntry::make('created_by'),
-                TextEntry::make('updated_by'),
-                TextEntry::make('created_at')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->dateTime(),
-            ]);
-    }
+    // public static function infolist(Schema $schema): Schema
+    // {
+    //     return $schema
+    //         ->components([
+    //             TextEntry::make('name'),
+    //             TextEntry::make('created_by'),
+    //             TextEntry::make('updated_by'),
+    //             TextEntry::make('created_at')
+    //                 ->dateTime(),
+    //             TextEntry::make('updated_at')
+    //                 ->dateTime(),
+    //         ]);
+    // }
 
     public static function table(Table $table): Table
     {
@@ -63,9 +65,6 @@ class DepartmentResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('faculty.name')
-                    ->searchable()
-                    ->sortable(),
                 TextColumn::make('created_by')
                     ->searchable(),
                 TextColumn::make('updated_by')
@@ -80,11 +79,8 @@ class DepartmentResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('faculty')
-                    ->relationship('faculty', 'name')
-                    ->searchable()
-                    ->preload()
-            ], layout: FiltersLayout::AboveContent)
+                //
+            ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
@@ -100,7 +96,7 @@ class DepartmentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ManageDepartments::route('/'),
+            'index' => ManageCriterias::route('/'),
         ];
     }
 }

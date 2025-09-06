@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique(); // fakultas
-            $table->unsignedBigInteger('faculty_id')->unique(); // FK to users table (later)
+            $table->unsignedBigInteger('faculty_id'); // FK to users table (later)
 
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();

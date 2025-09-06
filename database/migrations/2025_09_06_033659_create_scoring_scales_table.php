@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('criterias', function (Blueprint $table) {
-            $table->id(); // Primary key
-            $table->string('name', 255); // Example: GPA, income, achievement
+        Schema::create('scoring_scales', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('criteria_id'); // FK to scholarships (added later)
+            $table->string('value');
+            $table->decimal('score', 5, 2);
 
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();
+
+            $table->index('value');
         });
     }
 
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('criterias');
+        Schema::dropIfExists('scoring_scales');
     }
 };

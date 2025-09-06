@@ -11,6 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::table('cities', function (Blueprint $table) {
+            $table->foreign('province_id', 'fk_cities_province')
+                ->references('id')
+                ->on('provinces')
+                ->onUpdate('cascade')
+                ->onDelete('restrict');
+        });
         Schema::table('departments', function (Blueprint $table) {
             $table->foreign('faculty_id', 'fk_departments_faculty')
                 ->references('id')
@@ -34,11 +41,33 @@ return new class extends Migration
                 ->on('departments')
                 ->onUpdate('cascade')
                 ->onDelete('restrict');
+            $table->foreign('province_id', 'fk_students_province')
+                ->references('id')
+                ->on('provinces')
+                ->onUpdate('cascade')
+                ->onDelete('restrict');
+            $table->foreign('city_id', 'fk_students_cities')
+                ->references('id')
+                ->on('cities')
+                ->onUpdate('cascade')
+                ->onDelete('restrict');
         });
-        Schema::table('criterias', function (Blueprint $table) {
-            $table->foreign('scholarship_id', 'fk_criterias_scholarship')
+        Schema::table('scoring_scales', function (Blueprint $table) {
+            $table->foreign('criteria_id', 'fk_scoring_scales_criteria')
+                ->references('id')
+                ->on('criterias')
+                ->onUpdate('cascade')
+                ->onDelete('restrict');
+        });
+        Schema::table('scholarship_criterias', function (Blueprint $table) {
+            $table->foreign('scholarship_id', 'fk_scholarship_criterias_scholarship')
                 ->references('id')
                 ->on('scholarships')
+                ->onUpdate('cascade')
+                ->onDelete('restrict');
+            $table->foreign('criteria_id', 'fk_scholarship_criterias_criteria')
+                ->references('id')
+                ->on('criterias')
                 ->onUpdate('cascade')
                 ->onDelete('restrict');
         });
