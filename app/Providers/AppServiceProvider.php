@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Model::unguard();
+        Table::configureUsing(fn(Table $table) => $table
+            ->deferFilters(false));
     }
 }
