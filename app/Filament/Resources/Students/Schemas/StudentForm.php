@@ -33,10 +33,17 @@ class StudentForm
                     ->required()
                     ->relationship('faculty', 'name')
                     ->preload()
+                    ->live()
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        $set('department_id', null);
+                    })
                     ->searchable(),
                 Select::make('department_id')
                     ->required()
-                    ->relationship('department', 'name')
+                    ->relationship('department', 'name', modifyQueryUsing: function (Get $get, $query) {
+                        $facultyId = $get('faculty_id');
+                        $query->where('faculty_id', $facultyId);
+                    })
                     ->preload()
                     ->searchable(),
                 Select::make('province_id')

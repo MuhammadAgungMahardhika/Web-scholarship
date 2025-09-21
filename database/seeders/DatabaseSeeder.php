@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Faculty;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -24,7 +25,9 @@ class DatabaseSeeder extends Seeder
             PermissionAndRoleSeeder::class,
             UserSeeder::class,
             ProvinceSeeder::class,
-            CitySeeder::class
+            CitySeeder::class,
+            FacultySeeder::class,
+            DepartmentSeeder::class
 
         ]);
     }

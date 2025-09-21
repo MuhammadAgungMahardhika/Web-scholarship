@@ -15,7 +15,8 @@ class StudentsTable
     {
         return $table
             ->columns([
-                TextColumn::make('user_id')
+                TextColumn::make('user.name')
+                    ->label('Username')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('student_number')
@@ -24,7 +25,9 @@ class StudentsTable
                     ->searchable(),
                 TextColumn::make('study_program')
                     ->searchable(),
-                TextColumn::make('faculty')
+                TextColumn::make('faculty.name')
+                    ->searchable(),
+                TextColumn::make('department.name')
                     ->searchable(),
                 TextColumn::make('phone_number')
                     ->searchable(),

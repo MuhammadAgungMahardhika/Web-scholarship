@@ -28,10 +28,10 @@ class ScholarshipResource extends Resource
         return ScholarshipForm::configure($schema);
     }
 
-    public static function infolist(Schema $schema): Schema
-    {
-        return ScholarshipInfolist::configure($schema);
-    }
+    // public static function infolist(Schema $schema): Schema
+    // {
+    //     return ScholarshipInfolist::configure($schema);
+    // }
 
     public static function table(Table $table): Table
     {

@@ -32,6 +32,7 @@ class ScholarshipForm
                 TextInput::make('quota')
                     ->numeric(),
                 Toggle::make('is_active')
+                    ->default(true)
                     ->required(),
                 Repeater::make('scolarshipCriterias')
                     ->relationship()

@@ -16,7 +16,7 @@ class Scholarship extends Model
     {
         return $this->hasMany(Application::class);
     }
-    public function scolarshipCriterias()
+    public function scholarshipCriterias()
     {
         return $this->hasMany(ScholarshipCriteria::class);
     }

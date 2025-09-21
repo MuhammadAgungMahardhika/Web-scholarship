@@ -23,7 +23,7 @@ use Filament\Tables\Table;
 class CriteriaResource extends Resource
 {
     protected static ?string $model = Criteria::class;
-
+    protected static string | \UnitEnum | null $navigationGroup = "Master";
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
