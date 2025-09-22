@@ -15,14 +15,15 @@ return new class extends Migration
             $table->id(); // Primary key
             $table->unsignedBigInteger('application_id'); // FK to applications (added later)
             $table->unsignedBigInteger('criteria_id');    // FK to criteria (added later)
-            $table->decimal('value', 5, 2); // Score for this criteria
+            $table->decimal('value', 5, 2)->nullable(); // Score for this criteria
 
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();
-
+            $table->tinyInteger('status')->default(1);
             // Unique index for application_id + criteria_id
             $table->unique(['application_id', 'criteria_id'], 'idx_app_score_unique');
+            $table->index('status');
         });
     }
 

@@ -95,6 +95,35 @@ return new class extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('restrict');
         });
+
+        Schema::table('application_data', function (Blueprint $table) {
+            $table->foreign('application_id', 'fk_application_data_application')
+                ->references('id')
+                ->on('applications')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+            $table->foreign('criteria_id', 'fk_application_data_criteria')
+                ->references('id')
+                ->on('criterias')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+        });
+
+        Schema::table('documents', function (Blueprint $table) {
+            $table->foreign('application_data_id', 'fk_documents_application_data')
+                ->references('id')
+                ->on('application_data')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+        });
+
+        Schema::table('criteria_required_documents', function (Blueprint $table) {
+            $table->foreign('criteria_id', 'fk_criteria_required_documents_criteria')
+                ->references('id')
+                ->on('criterias')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+        });
     }
 
     /**

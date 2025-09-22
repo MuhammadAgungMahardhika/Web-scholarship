@@ -12,7 +12,11 @@ class Criteria extends Model
     use HasFactory;
     use Blameable;
 
-    public function scolarshipCriterias()
+    public function criteriaRequiredDocuments()
+    {
+        return $this->hasMany(CriteriaRequiredDocument::class);
+    }
+    public function scholarshipCriterias()
     {
         return $this->hasMany(ScholarshipCriteria::class);
     }

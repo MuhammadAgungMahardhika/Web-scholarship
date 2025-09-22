@@ -15,6 +15,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -32,16 +33,26 @@ class CriteriaResource extends Resource
             ->components([
                 TextInput::make('name')
                     ->required(),
-                Repeater::make('scoringScales')
-                    ->relationship()
-                    ->schema([
-                        TextInput::make('value')
-                            ->required(),
-                        TextInput::make('score')
-                            ->required()
-                            ->numeric(),
-                    ])
-                    ->columnSpanFull()->columns(2)->grid(3)
+                Section::make([
+                    Repeater::make('scoringScales')
+                        ->relationship()
+                        ->schema([
+                            TextInput::make('value')
+                                ->required(),
+                            TextInput::make('score')
+                                ->required()
+                                ->numeric(),
+                        ])
+                        ->columnSpanFull()->columns(2)->grid(3)
+                ])->columnSpan(2),
+                Section::make([
+                    Repeater::make('criteriaRequiredDocuments')
+                        ->relationship()
+                        ->schema([
+                            TextInput::make('name') // Example: GPA, income, achievement
+                                ->required(),
+                        ])->columnSpanFull()->columns(1)->grid(3)
+                ])->columnSpan(2)
             ]);
     }
 
@@ -64,6 +75,12 @@ class CriteriaResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->searchable(),
+                TextColumn::make('scoringScales.value')
+                    ->listWithLineBreaks()
+                    ->searchable(),
+                TextColumn::make('criteriaRequiredDocuments.name')
+                    ->listWithLineBreaks()
                     ->searchable(),
                 TextColumn::make('created_by')
                     ->searchable(),

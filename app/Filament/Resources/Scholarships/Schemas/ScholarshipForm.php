@@ -34,7 +34,7 @@ class ScholarshipForm
                 Toggle::make('is_active')
                     ->default(true)
                     ->required(),
-                Repeater::make('scolarshipCriterias')
+                Repeater::make('scholarshipCriterias')
                     ->relationship()
                     ->schema([
                         Select::make('criteria_id')

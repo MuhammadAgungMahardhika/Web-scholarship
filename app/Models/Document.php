@@ -12,8 +12,13 @@ class Document extends Model
     use HasFactory;
     use Blameable;
 
+    public function applicationData()
+    {
+        return $this->belongsTo(ApplicationData::class);
+    }
+
     public function application()
     {
-        return $this->belongsTo(Application::class);
+        return $this->hasOneThrough(Application::class, ApplicationData::class, 'id', 'id', 'application_data_id', 'application_id');
     }
 }

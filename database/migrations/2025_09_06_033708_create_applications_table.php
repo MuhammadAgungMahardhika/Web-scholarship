@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('scholarship_id'); // FK to scholarships (added later)
             $table->unsignedBigInteger('student_id');   // FK to students (added later)
             $table->date('submission_date'); // Date of submission
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // Application status
+            $table->tinyInteger('status')->default(1); // Application status
 
             $table->decimal('final_score', 5, 4)->nullable()->default(0);
             $table->string('created_by')->nullable();
@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Indexes
+            $table->index('status');
             $table->index('scholarship_id', 'idx_applications_scholarship');
             $table->index('student_id', 'idx_applications_student');
         });

@@ -29,13 +29,24 @@ class PermissionAndRoleSeeder extends Seeder
             'update-student',
             'delete-student',
         ];
+        $applicationPermissions = [
+            'view-any-application',
+            'view-application',
+            'create-application',
+            'update-application',
+            'delete-application',
 
+            'request-verify-application',
+            'verify-application',
+            'reject-application',
+        ];
 
 
         // Menggabungkan semua permissions ke dalam satu array untuk proses pembuatan permissions
         $allPermissions = array_merge(
             $userPermissions,
-            $studentPermissions
+            $studentPermissions,
+            $applicationPermissions
         );
 
         // Membuat semua permissions

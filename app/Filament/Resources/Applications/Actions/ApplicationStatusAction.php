@@ -1,0 +1,118 @@
+<?php
+
+namespace App\Filament\Resources\LabJobResource\Actions;
+
+use App\Models\Application;
+use App\Models\Enums\ApplicationStatusEnum;
+use App\Models\Enums\JobStatusEnum;
+use App\Models\LabJob;
+use App\Services\ApplicationService;
+use App\Services\LabJobService;
+
+use Exception;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+
+class ApplicationStatusAction
+{
+    public const PERMISSION_REQUEST_VERIFY_APPLICATION =  'request-verify-application';
+    public const PERMISSION_VERIFY_APPLICATION = 'verify-application';
+    public const PERMISSION_REJECT_APPLICATION = 'reject-application';
+
+    protected static function isAuthorized(string $permission): bool
+    {
+        return Auth::user()->can($permission);
+    }
+
+    public static function requestVerify(): Action
+    {
+        // $authorized = static::isAuthorized(static::PERMISSION_REQUEST_VERIFY_APPLICATION);
+        $authorized = true;
+        return    Action::make('Request Verifikasi')
+            ->icon(Heroicon::OutlinedClock)
+            ->color('success')
+            ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::Draft->value && $authorized)
+            ->requiresConfirmation()
+            ->action(function (Application $record, ApplicationService $service) {
+                try {
+                    DB::transaction(function () use ($record, $service) {
+                        $service->updateApplicationStatus($record, ApplicationStatusEnum::RequestVerify);
+                    });
+                    Notification::make()->title('Status aplikasi berubah menjadi request verifikasi.')->success()->send();
+                } catch (Exception $e) {
+                    Notification::make()
+                        ->title('Gagal mengubah status aplikasi')
+                        ->body('Terjadi kesalahan: ' . $e->getMessage())
+                        ->danger()
+                        ->send();
+                    Log::error('Gagal mengubah status aplikasi', [
+                        'application_id' => $record->id,
+                        'error' => $e->getMessage(),
+                        'user_id' => Auth::id(),
+                    ]);
+                }
+            });
+    }
+    public static function verify(): Action
+    {
+        // $authorized = static::isAuthorized(static::PERMISSION_VERIFY_APPLICATION);
+        $authorized = true;
+        return    Action::make('Verifikasi')
+            ->icon(Heroicon::OutlinedDocumentCheck)
+            ->color('success')
+            ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::RequestVerify->value && $authorized)
+            ->requiresConfirmation()
+            ->action(function (Application $record, ApplicationService $service) {
+                try {
+                    DB::transaction(function () use ($record, $service) {
+                        $service->updateApplicationStatus($record, ApplicationStatusEnum::Verified);
+                    });
+                    Notification::make()->title('Status aplikasi berubah menjadi valid.')->success()->send();
+                } catch (Exception $e) {
+                    Notification::make()
+                        ->title('Gagal mengubah status aplikasi')
+                        ->body('Terjadi kesalahan: ' . $e->getMessage())
+                        ->danger()
+                        ->send();
+                    Log::error('Gagal mengubah status aplikasi', [
+                        'application_id' => $record->id,
+                        'error' => $e->getMessage(),
+                        'user_id' => Auth::id(),
+                    ]);
+                }
+            });
+    }
+    public static function reject(): Action
+    {
+        // $authorized = static::isAuthorized(static::PERMISSION_REJECT_APPLICATION);
+        $authorized = true;
+        return    Action::make('Tolak')
+            ->icon(Heroicon::OutlinedXCircle)
+            ->color('danger')
+            ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::RequestVerify->value && $authorized)
+            ->requiresConfirmation()
+            ->action(function (Application $record, ApplicationService $service) {
+                try {
+                    DB::transaction(function () use ($record, $service) {
+                        $service->updateApplicationStatus($record, ApplicationStatusEnum::Rejected);
+                    });
+                    Notification::make()->title('Status aplikasi berubah menjadi tidak valid.')->success()->send();
+                } catch (Exception $e) {
+                    Notification::make()
+                        ->title('Gagal mengubah status aplikasi')
+                        ->body('Terjadi kesalahan: ' . $e->getMessage())
+                        ->danger()
+                        ->send();
+                    Log::error('Gagal mengubah status aplikasi', [
+                        'application_id' => $record->id,
+                        'error' => $e->getMessage(),
+                        'user_id' => Auth::id(),
+                    ]);
+                }
+            });
+    }
+}

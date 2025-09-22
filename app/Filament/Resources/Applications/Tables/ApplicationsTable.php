@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Applications\Tables;
 
+use App\Models\Enums\ApplicationStatusEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -24,7 +25,7 @@ class ApplicationsTable
                 TextColumn::make('submission_date')
                     ->date()
                     ->sortable(),
-                TextColumn::make('status'),
+                TextColumn::make('status')->formatStateUsing(fn($state) => ApplicationStatusEnum::labels()[$state])->color(fn($state) => ApplicationStatusEnum::color($state))->badge(),
                 TextColumn::make('created_by')
                     ->searchable(),
                 TextColumn::make('updated_by')
