@@ -28,7 +28,7 @@ class ApplicationStatusAction
         return Auth::user()->can($permission);
     }
 
-    public static function requestVerify(): Action
+    public static function requestVerify($url = null): Action
     {
         // $authorized = static::isAuthorized(static::PERMISSION_REQUEST_VERIFY_APPLICATION);
         $authorized = true;
@@ -37,12 +37,15 @@ class ApplicationStatusAction
             ->color('success')
             ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::Draft->value && $authorized)
             ->requiresConfirmation()
-            ->action(function (Application $record, ApplicationService $service) {
+            ->action(function (Application $record, ApplicationService $service) use ($url) {
                 try {
                     DB::transaction(function () use ($record, $service) {
                         $service->updateApplicationStatus($record, ApplicationStatusEnum::RequestVerify);
                     });
                     Notification::make()->title('Status aplikasi berubah menjadi request verifikasi.')->success()->send();
+                    if ($url) {
+                        return redirect()->to($url);
+                    }
                 } catch (Exception $e) {
                     Notification::make()
                         ->title('Gagal mengubah status aplikasi')

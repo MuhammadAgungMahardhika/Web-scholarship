@@ -22,7 +22,7 @@ class EditApplication extends EditRecord
             ViewAction::make(),
             DeleteAction::make(),
             ActionGroup::make([
-                ApplicationStatusAction::requestVerify(),
+                ApplicationStatusAction::requestVerify(static::getResource()::getUrl('view', ['record' => $this->record->id])),
                 ApplicationStatusAction::verify(),
                 ApplicationStatusAction::reject()
             ])->label('update status')->icon(Heroicon::ArrowUp)->button()->color('success')
