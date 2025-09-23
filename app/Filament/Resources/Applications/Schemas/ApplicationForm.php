@@ -9,14 +9,17 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,10 +38,12 @@ class ApplicationForm
                     Select::make('scholarship_id')
                         ->relationship('scholarship', 'name', modifyQueryUsing: fn($query) => $query->where('is_active', true))
                         ->searchable()
+                        ->required()
                         ->preload(),
                     Select::make('student_id')
                         ->relationship('student', 'fullname')
                         ->searchable()
+                        ->required()
                         ->preload()
                         ->default(Auth::user()->student->id ?? null),
                     DatePicker::make('submission_date')
@@ -52,36 +57,40 @@ class ApplicationForm
                         ->disabled(),
                 ])->disabledOn(['edit'])->columnSpanFull()->columns(4),
                 Repeater::make('applicationData')
-                    ->relationship()
+                    ->relationship(
+                        modifyQueryUsing: fn($query) => $query
+                            ->with([
+                                'criteria', // Eager load criteria dengan select fields
+                                'documents' // Eager load documents
+                            ])
+                    )
                     ->schema([
-                        Select::make('criteria_id')
-                            ->required()
-                            ->relationship('criteria', 'name')
-                            ->preload()
-                            ->searchable()
-                            ->disabledOn(['edit']),
+                        TextEntry::make('criteria.name')->badge()->size(TextSize::Large)->color('primary'),
                         TextInput::make('value')
                             ->numeric()
                             ->required(),
                         Repeater::make('documents')
                             ->relationship()
+                            ->itemLabel(fn($state) => $state['name'] ?? null)
+                            ->hintIcon(Heroicon::InformationCircle)
+                            ->hintIconTooltip('Upload dokumen yang tertera, pastikan data tidak blur dan scan asli')
                             ->extraItemActions([
                                 Action::make('update-status')
                                     ->label('Update Status')
                                     ->icon('heroicon-o-pencil-square')
                                     ->color('primary')
+                                    ->authorize(fn($record) => $record->status === ApplicationStatusEnum::RequestVerify->value)
                                     ->schema([
-                                        Hidden::make('id'),
-                                        Select::make('status')
+                                        Radio::make('status')
                                             ->label('Status Dokumen')
-                                            ->options([
-                                                DocumentStatusEnum::Verified->value => 'Verifikasi',
-                                                DocumentStatusEnum::Rejected->value => 'Tolak',
-                                                DocumentStatusEnum::Revision->value => 'Butuh perbaikan',
-                                            ])
-                                            ->live()
                                             ->default(fn($record) => $record->status)
-                                            ->required(),
+                                            ->options([
+                                                DocumentStatusEnum::Verified->value => DocumentStatusEnum::Verified->label(),
+                                                DocumentStatusEnum::Revision->value => DocumentStatusEnum::Revision->label(),
+                                                DocumentStatusEnum::Rejected->value => DocumentStatusEnum::Rejected->label(),
+                                            ])
+                                            ->required()
+                                            ->live()->inline(),
                                         Textarea::make('note')
                                             ->label('Catatan')
                                             ->placeholder('Tambahkan catatan jika diperlukan...')
@@ -91,13 +100,16 @@ class ApplicationForm
                                                 DocumentStatusEnum::Revision->value
                                             ]))
                                     ])
-                                    ->action(function (array $data, $state) {
-                                        dd($data);
-                                        Document::where('id', $state['id'])
-                                            ->update([
-                                                'status' => $data['status'],
-                                                'note' => $data['note'] ?? null,
-                                            ]);
+                                    ->action(function (array $arguments, Repeater $component, $data, $livewire) {
+                                        $itemData = $component->getItemState($arguments['item']);
+                                        Document::where('id', $itemData['id'])->update([
+                                            'status' => $data['status'],
+                                            'note' => $data['note'] ?? null
+                                        ]);
+                                        $livewire->refreshFormData([
+                                            'application',
+                                            'applicationData'
+                                        ]);
                                         Notification::make()
                                             ->title('Status berhasil diupdate')
                                             ->success()
@@ -105,22 +117,31 @@ class ApplicationForm
                                     })
                                     ->requiresConfirmation()
                                     ->modalHeading('Update Status Dokumen')
-                                    ->modalDescription(fn($record) => "Anda akan mengubah status dokumen: {$record->name}")
                                     ->modalSubmitActionLabel('Update Status')
+                                    ->databaseTransaction()
                             ])
                             ->schema([
-                                TextInput::make('name')
-                                    ->disabled()
-                                    ->suffixIcon(fn($record) => $record->status == DocumentStatusEnum::Verified->value ? Heroicon::Check : ($record->status == DocumentStatusEnum::Rejected->value ? Heroicon::XCircle : Heroicon::Clock))
-                                    ->suffixIconColor(
-                                        fn($record) =>  DocumentStatusEnum::color($record->status)
-                                    )
-                                    ->required(),
+
+                                Hidden::make('id'),
                                 FileUpload::make('file_path')
-                                    ->label('File Path')
-                                    ->required()
-                                    ->disabled(fn($record) => $record->status === DocumentStatusEnum::Verified->value),
-                                // If you want to allow uploading files, consider using a FileUpload component instead
+                                    ->label('File (maksimal 2 MB)')
+                                    ->required(),
+                                TextInput::make('note')
+                                    ->label('Komentar')
+                                    ->live()
+                                    ->visible(fn($record) => $record->note ? true : false),
+                                TextEntry::make('status')
+                                    ->size(TextSize::Large)
+                                    ->icon(fn($state) => match ($state) {
+                                        DocumentStatusEnum::Verified->value => Heroicon::Check,
+                                        DocumentStatusEnum::Revision->value => Heroicon::PencilSquare,
+                                        DocumentStatusEnum::Rejected->value => Heroicon::XCircle,
+                                        default => Heroicon::Clock, // Untuk status lainnya (mis. pending)
+                                    })
+                                    ->badge()
+                                    ->iconColor(fn($state) => DocumentStatusEnum::color($state))
+                                    ->color(fn($state) => DocumentStatusEnum::color($state))
+                                    ->formatStateUsing(fn($state) => DocumentStatusEnum::labels()[$state]),
                             ])->columnSpanFull()->columns(1)->grid(2)->visibleOn(['edit', 'view'])->addable(false)->deletable(false),
 
                     ])

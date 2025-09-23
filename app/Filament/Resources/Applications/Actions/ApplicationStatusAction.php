@@ -49,7 +49,7 @@ class ApplicationStatusAction
                 } catch (Exception $e) {
                     Notification::make()
                         ->title('Gagal mengubah status aplikasi')
-                        ->body('Terjadi kesalahan: ' . $e->getMessage())
+                        ->body($e->getMessage())
                         ->danger()
                         ->send();
                     Log::error('Gagal mengubah status aplikasi', [
@@ -78,7 +78,7 @@ class ApplicationStatusAction
                 } catch (Exception $e) {
                     Notification::make()
                         ->title('Gagal mengubah status aplikasi')
-                        ->body('Terjadi kesalahan: ' . $e->getMessage())
+                        ->body($e->getMessage())
                         ->danger()
                         ->send();
                     Log::error('Gagal mengubah status aplikasi', [
@@ -107,7 +107,7 @@ class ApplicationStatusAction
                 } catch (Exception $e) {
                     Notification::make()
                         ->title('Gagal mengubah status aplikasi')
-                        ->body('Terjadi kesalahan: ' . $e->getMessage())
+                        ->body($e->getMessage())
                         ->danger()
                         ->send();
                     Log::error('Gagal mengubah status aplikasi', [
