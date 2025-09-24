@@ -22,6 +22,41 @@ class PermissionAndRoleSeeder extends Seeder
             'update-user',
             'delete-user',
         ];
+        $rolePermissions = [
+            'view-any-role',
+            'view-role',
+            'create-role',
+            'update-role',
+            'delete-role',
+        ];
+        $facultyPermissions = [
+            'view-any-faculty',
+            'view-faculty',
+            'create-faculty',
+            'update-faculty',
+            'delete-faculty',
+        ];
+        $departmentPermissions = [
+            'view-any-department',
+            'view-department',
+            'create-department',
+            'update-department',
+            'delete-department',
+        ];
+        $provincePermissions = [
+            'view-any-province',
+            'view-province',
+            'create-province',
+            'update-province',
+            'delete-province',
+        ];
+        $cityPermissions = [
+            'view-any-city',
+            'view-city',
+            'create-city',
+            'update-city',
+            'delete-city',
+        ];
         $studentPermissions = [
             'view-any-student',
             'view-student',
@@ -29,6 +64,22 @@ class PermissionAndRoleSeeder extends Seeder
             'update-student',
             'delete-student',
         ];
+
+        $criteriaPermissions = [
+            'view-any-criteria',
+            'view-criteria',
+            'create-criteria',
+            'update-criteria',
+            'delete-criteria',
+        ];
+        $scholarshipPermissions = [
+            'view-any-scholarship',
+            'view-scholarship',
+            'create-scholarship',
+            'update-scholarship',
+            'delete-scholarship',
+        ];
+
         $applicationPermissions = [
             'view-any-application',
             'view-application',
@@ -36,16 +87,26 @@ class PermissionAndRoleSeeder extends Seeder
             'update-application',
             'delete-application',
 
+
             'request-verify-application',
             'verify-application',
             'reject-application',
+
+            'select-all-student-application',
         ];
 
 
         // Menggabungkan semua permissions ke dalam satu array untuk proses pembuatan permissions
         $allPermissions = array_merge(
             $userPermissions,
+            $rolePermissions,
+            $facultyPermissions,
+            $departmentPermissions,
+            $provincePermissions,
+            $cityPermissions,
             $studentPermissions,
+            $criteriaPermissions,
+            $scholarshipPermissions,
             $applicationPermissions
         );
 

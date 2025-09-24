@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Applications\Schemas;
 
+use App\Models\Application;
 use App\Models\Document;
 use App\Models\Enums\ApplicationStatusEnum;
 use App\Models\Enums\DocumentStatusEnum;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -22,9 +24,18 @@ use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Unique;
 
 class ApplicationForm
 {
+    public const PERMISSION_SELECT_ALL_STUDENT =  'select-all-student-application';
+
+    protected static function isAuthorized(string $permission): bool
+    {
+
+        return Auth::user()->can($permission);
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -41,11 +52,25 @@ class ApplicationForm
                         ->required()
                         ->preload(),
                     Select::make('student_id')
-                        ->relationship('student', 'fullname')
+                        ->relationship('student', 'fullname', modifyQueryUsing: function ($query) {
+                            if (static::isAuthorized(static::PERMISSION_SELECT_ALL_STUDENT)) {
+                                return $query;
+                            }
+                            return $query->where('student_id', Auth::user()->student->id);
+                        })
                         ->searchable()
                         ->required()
                         ->preload()
-                        ->default(Auth::user()->student->id ?? null),
+                        ->default(Auth::user()->student->id ?? null)
+                        ->live() // Tambahkan live untuk reaktif
+                        ->unique(
+                            ignoreRecord: true,
+                            modifyRuleUsing: function (Unique $rule, Get $get) {
+                                return $rule->where('scholarship_id', $get('scholarship_id'));
+                            }
+                        )->validationMessages([
+                            'unique' => 'Sudah terdaftar pada beasiswa ini.',
+                        ]),
                     DatePicker::make('submission_date')
                         ->default(now())
                         ->required()
@@ -121,7 +146,6 @@ class ApplicationForm
                                     ->databaseTransaction()
                             ])
                             ->schema([
-
                                 Hidden::make('id'),
                                 FileUpload::make('file_path')
                                     ->label('File (maksimal 2 MB)')
