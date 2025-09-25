@@ -4,12 +4,14 @@ namespace App\Filament\Resources\Criterias;
 
 use App\Filament\Resources\Criterias\Pages\ManageCriterias;
 use App\Models\Criteria;
+use App\Models\Enums\CriteriaDataTypeEnum;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -33,6 +35,9 @@ class CriteriaResource extends Resource
             ->components([
                 TextInput::make('name')
                     ->required(),
+                Radio::make('data_type')
+                    ->options(CriteriaDataTypeEnum::labels())
+                    ->required()->inline(),
                 Section::make([
                     Repeater::make('scoringScales')
                         ->relationship()
@@ -75,6 +80,8 @@ class CriteriaResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->searchable(),
+                TextColumn::make('data_type')
                     ->searchable(),
                 TextColumn::make('scoringScales.value')
                     ->listWithLineBreaks()

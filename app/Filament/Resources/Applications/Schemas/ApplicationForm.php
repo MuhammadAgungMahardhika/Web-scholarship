@@ -91,9 +91,7 @@ class ApplicationForm
                     )
                     ->schema([
                         TextEntry::make('criteria.name')->badge()->size(TextSize::Large)->color('primary'),
-                        TextInput::make('value')
-                            ->numeric()
-                            ->required(),
+                        ...static::getDynamicValueComponent(),
                         Repeater::make('documents')
                             ->relationship()
                             ->itemLabel(fn($state) => $state['name'] ?? null)
@@ -171,5 +169,65 @@ class ApplicationForm
                     ])
                     ->columnSpanFull()->columns(2)->grid(2)->visibleOn(['edit', 'view'])->addable(false)->deletable(false)
             ]);
+    }
+
+    /**
+     * Generate single dynamic value component based on criteria data_type
+     */
+    protected static function getDynamicValueComponent()
+    {
+        // Approach: Gunakan satu TextInput yang adaptif untuk number dan text
+        // Kemudian tambahkan Select dan FileUpload dengan visibility
+        // Ini hack terbaik untuk Filament
+
+        return [
+            // Primary component untuk text dan number
+            TextInput::make('value')
+                ->label('Nilai')
+                ->numeric(fn($record): bool => $record->criteria->data_type  === 'number')
+                ->placeholder(function ($record) {
+                    return match ($record->criteria->data_type) {
+                        'number' => 'Masukkan nilai numerik',
+                        'text' => 'Masukkan teks',
+                        default => 'Masukkan nilai'
+                    };
+                })
+                ->required()
+                ->visible(
+                    fn($record): bool =>
+                    in_array($record->criteria->data_type, ['number', 'text'])
+                ),
+
+            // Select component  
+            Select::make('value')
+                ->label('Pilihan')
+                ->options(function ($record) {
+                    $criteriaId = $record->criteria_id;
+                    if (!$criteriaId) return [];
+
+                    return \App\Models\ScoringScale::where('criteria_id', $criteriaId)
+                        ->pluck('value', 'value')
+                        ->toArray();
+                })
+                ->placeholder('Pilih opsi')
+                ->required()
+                ->visible(
+                    fn($record): bool =>
+                    $record->criteria->data_type === 'select'
+                ),
+
+            // File component
+            FileUpload::make('value')
+                ->label('Upload File')
+                ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'])
+                ->maxSize(2048)
+                ->directory('criteria-files')
+                ->preserveFilenames()
+                ->required()
+                ->visible(
+                    fn($record): bool =>
+                    $record->criteria->data_type === 'file'
+                ),
+        ];
     }
 }
