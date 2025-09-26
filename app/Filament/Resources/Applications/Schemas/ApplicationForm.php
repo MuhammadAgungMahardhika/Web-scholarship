@@ -53,7 +53,14 @@ class ApplicationForm
             ->components([
                 Section::make([
                     Select::make('scholarship_id')
-                        ->relationship('scholarship', 'name', modifyQueryUsing: fn($query) => $query->where('is_active', true))
+                        ->relationship(
+                            'scholarship',
+                            'name',
+                            modifyQueryUsing: fn($query) => $query
+                                ->where('is_active', true)
+                                ->whereDate('start_date', '<=', now())
+                                ->whereDate('end_date', '>=', now())
+                        )
                         ->searchable()
                         ->required()
                         ->preload(),

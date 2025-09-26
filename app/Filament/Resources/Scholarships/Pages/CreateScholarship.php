@@ -7,5 +7,6 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateScholarship extends CreateRecord
 {
+    protected ?bool $hasDatabaseTransactions = true;
     protected static string $resource = ScholarshipResource::class;
 }

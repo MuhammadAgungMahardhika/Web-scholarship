@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Criteria extends Model
 {
@@ -19,6 +20,13 @@ class Criteria extends Model
     public function scholarshipCriterias()
     {
         return $this->hasMany(ScholarshipCriteria::class);
+    }
+
+    public function scholarships(): BelongsToMany
+    {
+        return $this->belongsToMany(Scholarship::class, 'scholarship_criterias')
+
+            ->withPivot('weight');
     }
     public function scholarship()
     {

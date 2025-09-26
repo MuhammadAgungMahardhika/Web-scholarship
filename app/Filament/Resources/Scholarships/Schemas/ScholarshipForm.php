@@ -22,6 +22,7 @@ class ScholarshipForm
             ])
             ->components([
                 TextInput::make('name')
+                    ->unique()
                     ->required(),
                 Textarea::make('description')
                     ->columnSpanFull(),
@@ -35,7 +36,7 @@ class ScholarshipForm
                     ->default(true)
                     ->required(),
                 Repeater::make('scholarshipCriterias')
-                    ->relationship()
+                    ->relationship(modifyQueryUsing: fn($query) => $query->with('criteria'))
                     ->schema([
                         Select::make('criteria_id')
                             ->required()
@@ -43,10 +44,11 @@ class ScholarshipForm
                             ->preload()
                             ->searchable(),
                         TextInput::make('weight')
-                            ->required()
+                            ->label('weight ( Analytic Hierarcy Process) ')
+                            ->readOnly()
                             ->numeric(),
                     ])
-                    ->columnSpanFull()->columns(2)->grid(3)
+                    ->columnSpanFull()->columns(2)->grid(2)
 
             ]);
     }

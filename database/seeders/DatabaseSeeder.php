@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Criteria;
 use App\Models\Faculty;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -27,7 +28,8 @@ class DatabaseSeeder extends Seeder
             ProvinceSeeder::class,
             CitySeeder::class,
             FacultySeeder::class,
-            DepartmentSeeder::class
+            DepartmentSeeder::class,
+            CriteriaSeeder::class
 
         ]);
     }
