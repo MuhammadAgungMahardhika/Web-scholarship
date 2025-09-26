@@ -64,6 +64,7 @@ class ApplicationService
             foreach ($requiredDocuments as $requiredDocument) {
                 $applicationData->documents()->create([
                     'name' => $requiredDocument->name,
+                    'is_required' => $requiredDocument->is_required,
                     'file_path' => null,
                     'status' => 1,
                 ]);

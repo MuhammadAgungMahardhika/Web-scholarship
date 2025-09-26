@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Applications\Schemas;
 use App\Models\Application;
 use App\Models\Document;
 use App\Models\Enums\ApplicationStatusEnum;
+use App\Models\Enums\CriteriaDataTypeEnum;
 use App\Models\Enums\DocumentStatusEnum;
 use Closure;
 use Filament\Actions\Action;
@@ -18,17 +19,22 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Unique;
+use Illuminate\Support\Str;
 
 class ApplicationForm
 {
     public const PERMISSION_SELECT_ALL_STUDENT =  'select-all-student-application';
+    public const PERMISSION_VERIFY_DOCUMENT =  'verify-document-application';
 
     protected static function isAuthorized(string $permission): bool
     {
@@ -89,20 +95,20 @@ class ApplicationForm
                                 'documents' // Eager load documents
                             ])
                     )
-                    ->schema([
-                        TextEntry::make('criteria.name')->badge()->size(TextSize::Large)->color('primary'),
-                        ...static::getDynamicValueComponent(),
+                    ->schema(fn($record) => [
+                        TextEntry::make('criteria.name')->badge()->size(TextSize::Large)->color('primary')->hiddenLabel(),
+                        ...static::getDynamicValueComponentSimple(),
                         Repeater::make('documents')
                             ->relationship()
                             ->itemLabel(fn($state) => $state['name'] ?? null)
                             ->hintIcon(Heroicon::InformationCircle)
-                            ->hintIconTooltip('Upload dokumen yang tertera, pastikan data tidak blur dan scan asli')
+                            ->hintIconTooltip('Upload dokumen yang tertera, pastikan data tidak blur dan scan asli. Admin akan mengecheck dan validasi dokumen dan data yang diberikan')
                             ->extraItemActions([
-                                Action::make('update-status')
-                                    ->label('Update Status')
+                                Action::make('verify-document')
+                                    ->label('Verifikasi Dokumen')
                                     ->icon('heroicon-o-pencil-square')
-                                    ->color('primary')
-                                    ->authorize(fn($record) => $record->status === ApplicationStatusEnum::RequestVerify->value)
+                                    ->color('info')
+                                    ->authorize(fn($record) => $record->status === ApplicationStatusEnum::RequestVerify->value && true)
                                     ->schema([
                                         Radio::make('status')
                                             ->label('Status Dokumen')
@@ -146,8 +152,9 @@ class ApplicationForm
                             ->schema([
                                 Hidden::make('id'),
                                 FileUpload::make('file_path')
-                                    ->label('File (maksimal 2 MB)')
-                                    ->required(),
+                                    ->hiddenLabel()
+                                    ->hint('Maksimal 2 MB')
+                                    ->required(fn($record) => $record->is_required ? true : false),
                                 TextInput::make('note')
                                     ->label('Komentar')
                                     ->live()
@@ -174,60 +181,71 @@ class ApplicationForm
     /**
      * Generate single dynamic value component based on criteria data_type
      */
-    protected static function getDynamicValueComponent()
+    protected static function getDynamicValueComponentSimple()
     {
-        // Approach: Gunakan satu TextInput yang adaptif untuk number dan text
-        // Kemudian tambahkan Select dan FileUpload dengan visibility
-        // Ini hack terbaik untuk Filament
-
         return [
-            // Primary component untuk text dan number
-            TextInput::make('value')
-                ->label('Nilai')
-                ->numeric(fn($record): bool => $record->criteria->data_type  === 'number')
-                ->placeholder(function ($record) {
-                    return match ($record->criteria->data_type) {
-                        'number' => 'Masukkan nilai numerik',
-                        'text' => 'Masukkan teks',
-                        default => 'Masukkan nilai'
+            Grid::make(1)
+                ->schema(function ($record): array {
+                    $dataType = $record?->criteria?->data_type;
+                    return match ($dataType) {
+                        'number' => [
+                            TextInput::make('value')
+                                ->hiddenLabel()
+                                ->numeric()
+                                ->minValue(0)
+                                ->maxValue(100)
+                                ->placeholder('Masukkan nilai')
+                                ->required(),
+                        ],
+
+                        'text' => [
+                            TextInput::make('value')
+                                ->hiddenLabel()
+                                ->label('Nilai Teks')
+                                ->maxLength(500)
+                                ->placeholder('Masukkan teks')
+                                ->helperText('Maksimal 500 karakter')
+                                ->required(),
+                        ],
+
+                        'select' => [
+                            Radio::make('value')
+                                ->label('Pilihan')
+                                ->hiddenLabel()
+                                ->options(function () use ($record) {
+                                    $criteriaId = $record?->criteria_id;
+                                    if (!$criteriaId) return [];
+
+                                    return \App\Models\ScoringScale::where('criteria_id', $criteriaId)
+                                        ->orderBy('value')
+                                        ->pluck('value', 'value')
+                                        ->toArray();
+                                })
+                                ->inline()
+                                ->required(),
+                        ],
+
+                        'file' => [
+                            FileUpload::make('value')
+                                ->label('Upload File')
+                                ->acceptedFileTypes(['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'])
+                                ->maxSize(5120)
+                                ->directory("criteria-files/" . Str::slug($record?->criteria?->name ?? 'criteria'))
+                                ->preserveFilenames()
+                                ->downloadable()
+                                ->helperText('Format: PDF, JPG, PNG, DOC, DOCX. Maksimal 5MB')
+                                ->required(),
+                        ],
+
+                        default => [
+                            TextInput::make('value')
+                                ->hiddenLabel()
+                                ->placeholder('Masukkan nilai')
+                                ->required(),
+                        ],
                     };
                 })
-                ->required()
-                ->visible(
-                    fn($record): bool =>
-                    in_array($record->criteria->data_type, ['number', 'text'])
-                ),
-
-            // Select component  
-            Select::make('value')
-                ->label('Pilihan')
-                ->options(function ($record) {
-                    $criteriaId = $record->criteria_id;
-                    if (!$criteriaId) return [];
-
-                    return \App\Models\ScoringScale::where('criteria_id', $criteriaId)
-                        ->pluck('value', 'value')
-                        ->toArray();
-                })
-                ->placeholder('Pilih opsi')
-                ->required()
-                ->visible(
-                    fn($record): bool =>
-                    $record->criteria->data_type === 'select'
-                ),
-
-            // File component
-            FileUpload::make('value')
-                ->label('Upload File')
-                ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'])
-                ->maxSize(2048)
-                ->directory('criteria-files')
-                ->preserveFilenames()
-                ->required()
-                ->visible(
-                    fn($record): bool =>
-                    $record->criteria->data_type === 'file'
-                ),
+                ->key('dynamicValueField'),
         ];
     }
 }

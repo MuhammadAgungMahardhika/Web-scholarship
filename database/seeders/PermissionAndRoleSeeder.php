@@ -93,6 +93,7 @@ class PermissionAndRoleSeeder extends Seeder
             'reject-application',
 
             'select-all-student-application',
+            'verify-document-application'
         ];
 
 

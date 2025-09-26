@@ -32,7 +32,7 @@ class ApplicationStatusAction
     {
         // $authorized = static::isAuthorized(static::PERMISSION_REQUEST_VERIFY_APPLICATION);
         $authorized = true;
-        return    Action::make('Request Verifikasi')
+        return    Action::make(ApplicationStatusEnum::RequestVerify->label())
             ->icon(Heroicon::OutlinedClock)
             ->color('success')
             ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::Draft->value && $authorized)
@@ -64,7 +64,7 @@ class ApplicationStatusAction
     {
         // $authorized = static::isAuthorized(static::PERMISSION_VERIFY_APPLICATION);
         $authorized = true;
-        return    Action::make('Verifikasi')
+        return    Action::make(ApplicationStatusEnum::Verified->label())
             ->icon(Heroicon::OutlinedDocumentCheck)
             ->color('success')
             ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::RequestVerify->value && $authorized)
@@ -93,7 +93,7 @@ class ApplicationStatusAction
     {
         // $authorized = static::isAuthorized(static::PERMISSION_REJECT_APPLICATION);
         $authorized = true;
-        return    Action::make('Tolak')
+        return    Action::make(ApplicationStatusEnum::Rejected->label())
             ->icon(Heroicon::OutlinedXCircle)
             ->color('danger')
             ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::RequestVerify->value && $authorized)

@@ -56,6 +56,14 @@ class CriteriaResource extends Resource
                         ->schema([
                             TextInput::make('name') // Example: GPA, income, achievement
                                 ->required(),
+                            Radio::make('is_required')
+                                ->hiddenLabel()
+                                ->default(true)
+                                ->options([
+                                    true => 'wajib',
+                                    false => 'opsional'
+                                ])
+                                ->inline()
                         ])->columnSpanFull()->columns(1)->grid(3)
                 ])->columnSpan(2)
             ]);

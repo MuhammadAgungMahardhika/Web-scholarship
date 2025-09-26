@@ -21,7 +21,7 @@ enum ApplicationStatusEnum: int
     {
         return [
             self::Draft->value => 'Draft',
-            self::RequestVerify->value => 'Menunggu validasi',
+            self::RequestVerify->value => 'Request Validasi',
             self::Verified->value => 'Valid',
             self::Rejected->value => 'Tidak valid',
         ];

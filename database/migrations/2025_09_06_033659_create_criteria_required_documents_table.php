@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('criteria_id'); // FK to scholarships (added later)
             $table->string('name', 255); // Example: GPA, income, achievement
-
+            $table->boolean('is_required')->default(true);
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();
