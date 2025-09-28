@@ -35,9 +35,9 @@ class CriteriaResource extends Resource
             ->components([
                 TextInput::make('name')
                     ->required(),
-                Radio::make('data_type')
-                    ->options(CriteriaDataTypeEnum::labels())
-                    ->required()->inline(),
+                // Radio::make('data_type')
+                //     ->options(CriteriaDataTypeEnum::labels())
+                //     ->required()->inline(),
                 Section::make([
                     Repeater::make('scoringScales')
                         ->relationship()

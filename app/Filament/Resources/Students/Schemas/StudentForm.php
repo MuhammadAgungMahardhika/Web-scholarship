@@ -26,7 +26,7 @@ class StudentForm
             ->components([
                 Select::make('user_id')
                     ->required()
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'name', modifyQueryUsing: fn($query) => $query->whereDoesntHave('student'))
                     ->preload()
                     ->searchable(),
                 Select::make('faculty_id')
@@ -64,7 +64,8 @@ class StudentForm
                     ->searchable()
                     ->preload(),
                 TextInput::make('student_number')
-                    ->required(),
+                    ->required()
+                    ->unique(),
                 TextInput::make('fullname')
                     ->required(),
                 Textarea::make('address')

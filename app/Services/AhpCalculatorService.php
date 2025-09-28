@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Log;
+
 class AhpCalculatorService
 {
     /**
@@ -20,6 +22,7 @@ class AhpCalculatorService
         9 => 1.45,
         10 => 1.49,
     ];
+
 
     /**
      * Menerima matriks perbandingan dan menghitung bobot kriteria
@@ -40,6 +43,9 @@ class AhpCalculatorService
             ];
         }
 
+        // Debug: Log original matrix
+        Log::info('AHP Original Matrix', ['matrix' => $matrix, 'size' => $n]);
+
         // === Langkah 1: Normalisasi Matriks ===
         $columnSums = array_fill(0, $n, 0);
         for ($j = 0; $j < $n; $j++) {
@@ -48,22 +54,49 @@ class AhpCalculatorService
             }
         }
 
+        // Debug: Log column sums
+        Log::info('AHP Column Sums', $columnSums);
+
         $normalizedMatrix = [];
         for ($i = 0; $i < $n; $i++) {
             for ($j = 0; $j < $n; $j++) {
-                // Mencegah pembagian dengan nol
                 $normalizedMatrix[$i][$j] = $columnSums[$j] > 0 ? $matrix[$i][$j] / $columnSums[$j] : 0;
             }
         }
 
-        // === Langkah 2: Hitung Vektor Bobot (rata-rata setiap baris) ===
+        // Debug: Log normalized matrix
+        Log::info('AHP Normalized Matrix', $normalizedMatrix);
+
+        // === Langkah 2: Hitung Vektor Bobot ===
         $weights = [];
         for ($i = 0; $i < $n; $i++) {
             $weights[$i] = array_sum($normalizedMatrix[$i]) / $n;
         }
 
-        // === Langkah 3: Hitung Rasio Konsistensi (CR) ===
-        // Dot product dari matriks asli dengan vektor bobot
+        // Debug: Log raw weights and total
+        $totalWeight = array_sum($weights);
+        Log::info('AHP Raw Weights', [
+            'weights' => $weights,
+            'total' => $totalWeight,
+            'expected_individual' => 1 / $n,
+            'all_equal_check' => array_map(fn($w) => abs($w - (1 / $n)) < 0.000001, $weights)
+        ]);
+
+        // === Langkah 3: Normalisasi Final (memastikan total = 1) ===
+        if ($totalWeight > 0) {
+            for ($i = 0; $i < $n; $i++) {
+                $weights[$i] = $weights[$i] / $totalWeight;
+            }
+        }
+
+        // Debug: Log final weights
+        Log::info('AHP Final Normalized Weights', [
+            'weights' => $weights,
+            'total' => array_sum($weights),
+            'precision_check' => array_map(fn($w) => number_format($w, 10), $weights)
+        ]);
+
+        // === Langkah 4: Hitung Rasio Konsistensi ===
         $weightedSumVector = [];
         for ($i = 0; $i < $n; $i++) {
             $sum = 0;
@@ -73,22 +106,26 @@ class AhpCalculatorService
             $weightedSumVector[$i] = $sum;
         }
 
-        // Hitung Lambda Max (λmax)
         $lambdaMax = 0;
         for ($i = 0; $i < $n; $i++) {
-            // Mencegah pembagian dengan nol jika bobot 0
             $lambdaMax += $weights[$i] > 0 ? $weightedSumVector[$i] / $weights[$i] : 0;
         }
         $lambdaMax /= $n;
 
         $consistencyIndex = ($n > 1) ? ($lambdaMax - $n) / ($n - 1) : 0;
-        $randomIndex = self::RANDOM_INDEX[$n] ?? 1.49; // Default untuk n > 10
+        $randomIndex = self::RANDOM_INDEX[$n] ?? 1.49;
         $consistencyRatio = ($randomIndex > 0) ? $consistencyIndex / $randomIndex : 0;
 
         return [
             'weights'           => $weights,
             'consistency_ratio' => $consistencyRatio,
             'is_consistent'     => $consistencyRatio < 0.1,
+            'debug_info' => [
+                'lambda_max' => $lambdaMax,
+                'consistency_index' => $consistencyIndex,
+                'random_index' => $randomIndex,
+                'total_weight' => array_sum($weights)
+            ]
         ];
     }
 }

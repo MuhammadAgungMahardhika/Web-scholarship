@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('criteria_id'); // FK to scholarships (added later)
             $table->string('value');
-            $table->decimal('score', 5, 2);
+            $table->integer('score');
 
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();

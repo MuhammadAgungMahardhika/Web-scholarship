@@ -4,11 +4,7 @@ namespace App\Filament\Resources\LabJobResource\Actions;
 
 use App\Models\Application;
 use App\Models\Enums\ApplicationStatusEnum;
-use App\Models\Enums\JobStatusEnum;
-use App\Models\LabJob;
 use App\Services\ApplicationService;
-use App\Services\LabJobService;
-
 use Exception;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -30,8 +26,7 @@ class ApplicationStatusAction
 
     public static function requestVerify($url = null): Action
     {
-        // $authorized = static::isAuthorized(static::PERMISSION_REQUEST_VERIFY_APPLICATION);
-        $authorized = true;
+        $authorized = static::isAuthorized(static::PERMISSION_REQUEST_VERIFY_APPLICATION);
         return    Action::make(ApplicationStatusEnum::RequestVerify->label())
             ->icon(Heroicon::OutlinedClock)
             ->color('success')
@@ -62,8 +57,7 @@ class ApplicationStatusAction
     }
     public static function verify(): Action
     {
-        // $authorized = static::isAuthorized(static::PERMISSION_VERIFY_APPLICATION);
-        $authorized = true;
+        $authorized = static::isAuthorized(static::PERMISSION_VERIFY_APPLICATION);
         return    Action::make(ApplicationStatusEnum::Verified->label())
             ->icon(Heroicon::OutlinedDocumentCheck)
             ->color('success')
@@ -91,8 +85,7 @@ class ApplicationStatusAction
     }
     public static function reject(): Action
     {
-        // $authorized = static::isAuthorized(static::PERMISSION_REJECT_APPLICATION);
-        $authorized = true;
+        $authorized = static::isAuthorized(static::PERMISSION_REJECT_APPLICATION);
         return    Action::make(ApplicationStatusEnum::Rejected->label())
             ->icon(Heroicon::OutlinedXCircle)
             ->color('danger')

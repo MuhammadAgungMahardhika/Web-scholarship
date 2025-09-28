@@ -9,8 +9,8 @@ enum ApplicationDataStatusEnum: int
 
     case Pending = 1;
     case Verified = 2;
-    case Rejected = 3;
-
+    case Revision = 3;
+    case Rejected = 4;
 
 
     /**
@@ -23,6 +23,7 @@ enum ApplicationDataStatusEnum: int
         return [
             self::Pending->value => 'Menunggu',
             self::Verified->value => 'Valid',
+            self::Revision->value => 'Butuh perbaikan',
             self::Rejected->value => 'Tidak valid',
         ];
     }
@@ -47,6 +48,7 @@ enum ApplicationDataStatusEnum: int
         return match ($status) {
             self::Pending->value => 'warning',
             self::Verified->value => 'success',
+            self::Revision->value => 'warning',
             self::Rejected->value => 'danger',
             default => 'warning',
         };
@@ -63,6 +65,7 @@ enum ApplicationDataStatusEnum: int
         return match ($status) {
             self::Pending->value => '#F59E0B',
             self::Verified->value => '#3bf648ff',
+            self::Revision->value =>  '#F59E0B',
             self::Rejected->value =>  '#EF4444',
             default => '#F59E0B',
         };

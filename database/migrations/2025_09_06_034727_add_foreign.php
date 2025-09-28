@@ -57,14 +57,14 @@ return new class extends Migration
                 ->references('id')
                 ->on('criterias')
                 ->onUpdate('cascade')
-                ->onDelete('restrict');
+                ->onDelete('cascade');
         });
         Schema::table('scholarship_criterias', function (Blueprint $table) {
             $table->foreign('scholarship_id', 'fk_scholarship_criterias_scholarship')
                 ->references('id')
                 ->on('scholarships')
                 ->onUpdate('cascade')
-                ->onDelete('restrict');
+                ->onDelete('cascade');
             $table->foreign('criteria_id', 'fk_scholarship_criterias_criteria')
                 ->references('id')
                 ->on('criterias')
@@ -88,7 +88,7 @@ return new class extends Migration
                 ->references('id')
                 ->on('applications')
                 ->onUpdate('cascade')
-                ->onDelete('restrict');
+                ->onDelete('cascade');
             $table->foreign('criteria_id', 'fk_application_scores_criteria')
                 ->references('id')
                 ->on('criterias')

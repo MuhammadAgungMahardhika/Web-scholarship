@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('scholarship_id');
             $table->unsignedBigInteger('criteria_id');
 
-            $table->decimal('weight', 5, 2)->nullable();
+            $table->decimal('weight', 5, 4)->nullable();
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();

@@ -95,6 +95,15 @@ class PermissionAndRoleSeeder extends Seeder
             'select-all-student-application',
             'verify-document-application'
         ];
+        $applicationDataPermissions = [
+            'view-any-application-data',
+            'view-application-data',
+            'create-application-data',
+            'update-application-data',
+            'delete-application-data',
+
+            'verify-application-data'
+        ];
 
 
         // Menggabungkan semua permissions ke dalam satu array untuk proses pembuatan permissions
@@ -108,7 +117,8 @@ class PermissionAndRoleSeeder extends Seeder
             $studentPermissions,
             $criteriaPermissions,
             $scholarshipPermissions,
-            $applicationPermissions
+            $applicationPermissions,
+            $applicationDataPermissions
         );
 
         // Membuat semua permissions

@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id(); // Primary key
             $table->unsignedBigInteger('application_id'); // FK to applications (added later)
             $table->unsignedBigInteger('criteria_id');    // FK to criteria (added later)
-            $table->decimal('score', 5, 2); // Score for this criteria
+            $table->integer('score'); // Score for this criteria
+            $table->decimal('weight', 5, 4)->nullable();
+            $table->decimal('weighted_score', 6, 4)->nullable();
 
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
