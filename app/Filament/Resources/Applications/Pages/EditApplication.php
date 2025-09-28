@@ -23,9 +23,6 @@ class EditApplication extends EditRecord
             DeleteAction::make(),
             ActionGroup::make([
                 ApplicationStatusAction::requestVerify(static::getResource()::getUrl('view', ['record' => $this->record->id])),
-                ApplicationStatusAction::verify(),
-                ApplicationStatusAction::revision(),
-                ApplicationStatusAction::reject()
             ])->label('update status')->icon(Heroicon::ArrowUp)->button()->color('success')
         ];
     }

@@ -90,6 +90,8 @@ class PermissionAndRoleSeeder extends Seeder
 
             'request-verify-application',
             'verify-application',
+            'revision-application',
+            'approve-application',
             'reject-application',
 
             'select-all-student-application',

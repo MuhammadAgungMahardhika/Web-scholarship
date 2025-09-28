@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Applications\RelationManagers;
 
+use App\Models\Enums\ApplicationStatusEnum;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -17,12 +18,16 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class ApplicationScoresRelationManager extends RelationManager
 {
     protected static bool $isLazy = false;
     protected static string $relationship = 'applicationScores';
-
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return $ownerRecord->status === ApplicationStatusEnum::Verified->value;
+    }
     public function form(Schema $schema): Schema
     {
         return $schema

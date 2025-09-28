@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('start_date'); // Application start date
             $table->date('end_date');   // Application end date
             $table->integer('quota')->nullable(); // Quota of recipients
+            $table->integer('used_quota')->default(0); // Quota of recipients
             $table->boolean('is_active')->default(true); // Status (active/inactive)
             $table->decimal('ahp_consistency_ratio', 8, 5)->nullable();
 

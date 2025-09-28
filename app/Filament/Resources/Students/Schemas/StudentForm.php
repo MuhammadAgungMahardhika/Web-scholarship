@@ -26,7 +26,8 @@ class StudentForm
             ->components([
                 Select::make('user_id')
                     ->required()
-                    ->relationship('user', 'name', modifyQueryUsing: fn($query) => $query->whereDoesntHave('student'))
+                    ->unique()
+                    ->relationship('user', 'name')
                     ->preload()
                     ->searchable(),
                 Select::make('faculty_id')

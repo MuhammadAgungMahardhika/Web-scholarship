@@ -70,12 +70,23 @@ class ApplicationService
             }
         }
         if ($newStatus === ApplicationStatusEnum::RevisionNeeded) {
+            if ($record->status === ApplicationStatusEnum::Approved->value) {
+                $record->scholarship->decrement('used_quota', 1);
+            }
             $record->status = $newStatus->value;
             $isSuccessed =   $record->save();
+        }
+        if ($newStatus === ApplicationStatusEnum::Approved) {
+            $record->status = $newStatus->value;
+            $isSuccessed =   $record->save();
+            $record->scholarship->increment('used_quota', 1);
         }
         if ($newStatus === ApplicationStatusEnum::Rejected) {
             $record->status = $newStatus->value;
             $isSuccessed =   $record->save();
+            if ($newStatus === ApplicationStatusEnum::Approved) {
+                $record->scholarship->decreament('used_quota', 1);
+            }
         }
         return $isSuccessed;
     }

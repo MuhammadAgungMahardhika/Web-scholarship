@@ -18,6 +18,7 @@ class ApplicationStatusAction
     public const PERMISSION_REQUEST_VERIFY_APPLICATION =  'request-verify-application';
     public const PERMISSION_VERIFY_APPLICATION = 'verify-application';
     public const PERMISSION_REVISION_APPLICATION = 'revision-application';
+    public const PERMISSION_APPROVE_APPLICATION = 'approve-application';
     public const PERMISSION_REJECT_APPLICATION = 'reject-application';
 
     protected static function isAuthorized(string $permission): bool
@@ -86,12 +87,11 @@ class ApplicationStatusAction
     }
     public static function revision(): Action
     {
-        // $authorized = static::isAuthorized(static::PERMISSION_REVISION_APPLICATION);
-        $authorized = true;
+        $authorized = static::isAuthorized(static::PERMISSION_REVISION_APPLICATION);
         return    Action::make(ApplicationStatusEnum::RevisionNeeded->label())
             ->icon(Heroicon::OutlinedPencil)
             ->color('warning')
-            ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::RequestVerify->value && $authorized)
+            ->authorize(fn(Application $record) => $record->status !== ApplicationStatusEnum::RevisionNeeded->value &&  $authorized)
             ->requiresConfirmation()
             ->action(function (Application $record, ApplicationService $service) {
                 try {
@@ -113,13 +113,42 @@ class ApplicationStatusAction
                 }
             });
     }
+
+    public static function approve(): Action
+    {
+        $authorized = static::isAuthorized(static::PERMISSION_APPROVE_APPLICATION);
+        return    Action::make(ApplicationStatusEnum::Approved->label())
+            ->icon(Heroicon::OutlinedDocumentCheck)
+            ->color('success')
+            ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::Verified->value && $authorized)
+            ->requiresConfirmation()
+            ->action(function (Application $record, ApplicationService $service) {
+                try {
+                    DB::transaction(function () use ($record, $service) {
+                        $service->updateApplicationStatus($record, ApplicationStatusEnum::Approved);
+                    });
+                    Notification::make()->title('Status aplikasi berubah diterima.')->success()->send();
+                } catch (Exception $e) {
+                    Notification::make()
+                        ->title('Gagal mengubah status aplikasi')
+                        ->body($e->getMessage())
+                        ->danger()
+                        ->send();
+                    Log::error('Gagal mengubah status aplikasi', [
+                        'application_id' => $record->id,
+                        'error' => $e->getMessage(),
+                        'user_id' => Auth::id(),
+                    ]);
+                }
+            });
+    }
     public static function reject(): Action
     {
         $authorized = static::isAuthorized(static::PERMISSION_REJECT_APPLICATION);
         return    Action::make(ApplicationStatusEnum::Rejected->label())
             ->icon(Heroicon::OutlinedXCircle)
             ->color('danger')
-            ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::RequestVerify->value && $authorized)
+            ->authorize(fn(Application $record) => in_array($record->status, [ApplicationStatusEnum::RequestVerify->value, ApplicationStatusEnum::Verified->value, ApplicationStatusEnum::Approved->value]) && $authorized)
             ->requiresConfirmation()
             ->action(function (Application $record, ApplicationService $service) {
                 try {

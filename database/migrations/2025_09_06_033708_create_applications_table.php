@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('submission_date'); // Date of submission
             $table->tinyInteger('status')->default(1); // Application status
 
-            $table->decimal('final_score', 5, 4)->nullable()->default(0);
+            $table->decimal('final_score', 10, 4)->nullable()->default(0);
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();

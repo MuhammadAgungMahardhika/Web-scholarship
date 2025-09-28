@@ -26,6 +26,11 @@ class ScholarshipsTable
                     ->sortable(),
                 TextColumn::make('quota')
                     ->numeric()
+                    ->alignEnd()
+                    ->sortable(),
+                TextColumn::make('used_quota')
+                    ->numeric()
+                    ->alignEnd()
                     ->sortable(),
                 IconColumn::make('is_active')
                     ->boolean(),

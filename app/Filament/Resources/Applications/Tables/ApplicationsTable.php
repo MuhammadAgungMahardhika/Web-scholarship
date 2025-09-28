@@ -2,15 +2,21 @@
 
 namespace App\Filament\Resources\Applications\Tables;
 
+use App\Models\Application;
 use App\Models\Enums\ApplicationStatusEnum;
+use App\Models\Scholarship;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ApplicationsTable
 {
@@ -51,7 +57,23 @@ class ApplicationsTable
                     ->label('Beasiswa')
                     ->relationship('scholarship', 'name')
                     ->preload()
+                    ->searchable(),
+                SelectFilter::make('student.faculty')
+                    ->label('Fakultas')
+                    ->relationship('student.faculty', 'name')
                     ->searchable()
+                    ->preload(),
+                SelectFilter::make('student.department')
+                    ->label('Departemen')
+                    ->relationship('student.department', 'name')
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('student_id')
+                    ->label('Mahasiswa')
+                    ->relationship('student', 'fullname')
+                    ->searchable()
+                    ->preload(),
+
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 ViewAction::make(),
@@ -60,6 +82,57 @@ class ApplicationsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    // Di dalam file ApplicationsTable.php
+
+                    BulkAction::make('approve')
+                        ->label(ApplicationStatusEnum::Approved->label())
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            $validRecords = $records->filter(function ($record) {
+                                return $record->status === ApplicationStatusEnum::Verified->value;
+                            });
+
+                            // Jika tidak ada aplikasi valid yang dipilih, hentikan aksi
+                            if ($validRecords->isEmpty()) {
+                                Notification::make()->title('Tidak Ada Aplikasi Valid')->warning()
+                                    ->body('Tidak ada aplikasi dengan status "Valid" yang dipilih untuk disetujui.')->send();
+                                return;
+                            }
+
+                            // --- Lanjutkan validasi kuota HANYA dengan record yang valid ---
+                            $scholarshipId = $validRecords->first()->scholarship_id;
+                            if ($validRecords->pluck('scholarship_id')->unique()->count() > 1) {
+                                Notification::make()->title('Aksi Dibatalkan')->danger()
+                                    ->body('Anda hanya bisa menyetujui aplikasi dari satu jenis beasiswa dalam satu waktu.')->send();
+                                return;
+                            }
+
+                            $scholarship = Scholarship::find($scholarshipId);
+                            if (!$scholarship || is_null($scholarship->quota)) {
+                                Notification::make()->title('Aksi Dibatalkan')->danger()
+                                    ->body("Kuota untuk beasiswa '{$scholarship->name}' belum diatur.")->send();
+                                return;
+                            }
+
+                            $selectedCount = $validRecords->count();
+                            $availableQuota = $scholarship->quota - $scholarship->used_quota;
+
+                            if ($selectedCount > $availableQuota) {
+                                Notification::make()->title('Kuota Terlampaui!')->danger()
+                                    ->body("Sisa kuota hanya {$availableQuota}. Anda mencoba menyetujui {$selectedCount} aplikasi.")
+                                    ->persistent()->send();
+                                return;
+                            }
+                            DB::transaction(function () use ($validRecords, $scholarship, $selectedCount) {
+                                $validRecords->each->update(['status' => ApplicationStatusEnum::Approved->value]);
+                                // Increment kuota terpakai di tabel scholarship
+                                $scholarship->increment('used_quota', $selectedCount);
+                            });
+                            Notification::make()->title('Aplikasi Telah Disetujui')->success()
+                                ->body("Berhasil menyetujui {$validRecords->count()} aplikasi yang valid.")->send();
+                        })
                 ]),
             ]);
     }
