@@ -29,6 +29,7 @@ class ScholarshipPanelProvider extends PanelProvider
             ->default()
             ->id('scholarship')
             ->path('scholarship')
+            ->profile(isSimple: false)
             ->login()
             ->colors([
                 'primary' => Color::Green,

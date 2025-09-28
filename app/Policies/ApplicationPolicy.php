@@ -17,6 +17,6 @@ class ApplicationPolicy
      */
     public function update(User $user, Application $application): bool
     {
-        return  $application->status === ApplicationStatusEnum::Draft->value;
+        return in_array($application->status, [ApplicationStatusEnum::Draft->value, ApplicationStatusEnum::RevisionNeeded->value]);
     }
 }

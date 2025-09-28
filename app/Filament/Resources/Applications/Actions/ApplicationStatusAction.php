@@ -17,6 +17,7 @@ class ApplicationStatusAction
 {
     public const PERMISSION_REQUEST_VERIFY_APPLICATION =  'request-verify-application';
     public const PERMISSION_VERIFY_APPLICATION = 'verify-application';
+    public const PERMISSION_REVISION_APPLICATION = 'revision-application';
     public const PERMISSION_REJECT_APPLICATION = 'reject-application';
 
     protected static function isAuthorized(string $permission): bool
@@ -30,7 +31,7 @@ class ApplicationStatusAction
         return    Action::make(ApplicationStatusEnum::RequestVerify->label())
             ->icon(Heroicon::OutlinedClock)
             ->color('success')
-            ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::Draft->value && $authorized)
+            ->authorize(fn(Application $record) => in_array($record->status, [ApplicationStatusEnum::Draft->value, ApplicationStatusEnum::RevisionNeeded->value])  && $authorized)
             ->requiresConfirmation()
             ->action(function (Application $record, ApplicationService $service) use ($url) {
                 try {
@@ -69,6 +70,35 @@ class ApplicationStatusAction
                         $service->updateApplicationStatus($record, ApplicationStatusEnum::Verified);
                     });
                     Notification::make()->title('Status aplikasi berubah menjadi valid.')->success()->send();
+                } catch (Exception $e) {
+                    Notification::make()
+                        ->title('Gagal mengubah status aplikasi')
+                        ->body($e->getMessage())
+                        ->danger()
+                        ->send();
+                    Log::error('Gagal mengubah status aplikasi', [
+                        'application_id' => $record->id,
+                        'error' => $e->getMessage(),
+                        'user_id' => Auth::id(),
+                    ]);
+                }
+            });
+    }
+    public static function revision(): Action
+    {
+        // $authorized = static::isAuthorized(static::PERMISSION_REVISION_APPLICATION);
+        $authorized = true;
+        return    Action::make(ApplicationStatusEnum::RevisionNeeded->label())
+            ->icon(Heroicon::OutlinedPencil)
+            ->color('warning')
+            ->authorize(fn(Application $record) => $record->status === ApplicationStatusEnum::RequestVerify->value && $authorized)
+            ->requiresConfirmation()
+            ->action(function (Application $record, ApplicationService $service) {
+                try {
+                    DB::transaction(function () use ($record, $service) {
+                        $service->updateApplicationStatus($record, ApplicationStatusEnum::RevisionNeeded);
+                    });
+                    Notification::make()->title('Status aplikasi berubah menjadi butuh revisi.')->success()->send();
                 } catch (Exception $e) {
                     Notification::make()
                         ->title('Gagal mengubah status aplikasi')

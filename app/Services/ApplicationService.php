@@ -69,6 +69,10 @@ class ApplicationService
                 $this->generateApplicationScore($record);
             }
         }
+        if ($newStatus === ApplicationStatusEnum::RevisionNeeded) {
+            $record->status = $newStatus->value;
+            $isSuccessed =   $record->save();
+        }
         if ($newStatus === ApplicationStatusEnum::Rejected) {
             $record->status = $newStatus->value;
             $isSuccessed =   $record->save();

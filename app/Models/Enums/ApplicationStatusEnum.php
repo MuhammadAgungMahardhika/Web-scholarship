@@ -2,15 +2,15 @@
 
 namespace App\Models\Enums;
 
-use Filament\Support\Colors\Color;
-
 enum ApplicationStatusEnum: int
 {
 
     case Draft = 1;
     case RequestVerify = 2;
     case Verified = 3;
-    case Rejected = 4;
+    case RevisionNeeded = 4;
+    case Rejected = 5;
+    case Approved = 6;
 
     /**
      * Menyediakan label yang mudah dibaca untuk setiap status pekerjaan.
@@ -23,7 +23,9 @@ enum ApplicationStatusEnum: int
             self::Draft->value => 'Draft',
             self::RequestVerify->value => 'Request Validasi',
             self::Verified->value => 'Valid',
+            self::RevisionNeeded->value => 'Butuh Perbaikan',
             self::Rejected->value => 'Tidak valid',
+            self::Approved->value => 'Diterima',
         ];
     }
 
@@ -46,8 +48,10 @@ enum ApplicationStatusEnum: int
     {
         return match ($status) {
             self::Draft->value => 'warning',
-            self::Verified->value => 'success',
+            self::Verified->value => 'info',
+            self::RevisionNeeded->value => 'warning',
             self::Rejected->value => 'danger',
+            self::Approved->value => 'success',
             default => 'warning',
         };
     }
@@ -64,6 +68,7 @@ enum ApplicationStatusEnum: int
             self::Draft->value => '#adaca9ff',
             self::RequestVerify->value => '#F59E0B',
             self::Verified->value => '#3bf648ff',
+            self::RevisionNeeded->value => '#F59E0B',
             self::Rejected->value =>  '#EF4444',
             default => '#adaca9ff',
         };

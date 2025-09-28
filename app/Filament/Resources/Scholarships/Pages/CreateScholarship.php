@@ -9,4 +9,9 @@ class CreateScholarship extends CreateRecord
 {
     protected ?bool $hasDatabaseTransactions = true;
     protected static string $resource = ScholarshipResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('edit', ['record' => $this->record]);
+    }
 }

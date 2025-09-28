@@ -108,13 +108,16 @@ class ApplicationForm
                     ->extraItemActions([
                         ApplicationDataStatusAction::verifyApplicationData()
                     ])
+                    ->collapsible()
                     ->schema(fn($record) => [
                         Hidden::make('id'),
                         TextEntry::make('criteria.name')->badge()->size(TextSize::Large)->color('primary')->hiddenLabel(),
                         ...static::getDynamicValueComponentSimple(),
-                        TextInput::make('note')
+                        Textarea::make('note')
                             ->label('Komentar')
+                            ->autosize()
                             ->live()
+                            ->disabled(fn() => !static::isAuthorized(static::PERMISSION_VERIFY_DOCUMENT))
                             ->visible(fn($record) => $record->note ? true : false),
                         TextEntry::make('status')
                             ->size(TextSize::Large)
@@ -144,7 +147,7 @@ class ApplicationForm
                             ])->columnSpanFull()->columns(1)->grid(2)->visibleOn(['edit', 'view'])->visible(fn($state) => !empty($state))->addable(false)->deletable(false),
 
                     ])
-                    ->columnSpanFull()->columns(2)->grid(2)->visibleOn(['edit', 'view'])->addable(false)->deletable(false)
+                    ->columnSpanFull()->columns(2)->grid(3)->visibleOn(['edit', 'view'])->addable(false)->deletable(false)
             ]);
     }
 
@@ -191,7 +194,6 @@ class ApplicationForm
                                         ->pluck('value', 'value')
                                         ->toArray();
                                 })
-                                ->inline()
                                 ->required(),
                         ],
 

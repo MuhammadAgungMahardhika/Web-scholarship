@@ -20,6 +20,7 @@ class ViewApplication extends ViewRecord
             ActionGroup::make([
                 ApplicationStatusAction::requestVerify(),
                 ApplicationStatusAction::verify(),
+                ApplicationStatusAction::revision(),
                 ApplicationStatusAction::reject()
             ])->label('update status')->icon(Heroicon::ArrowUp)->button()->color('success')
         ];

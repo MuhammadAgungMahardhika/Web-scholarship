@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Scholarships\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -24,6 +25,7 @@ class ScholarshipForm
                 'xl' => 4,
             ])
             ->components([
+                Hidden::make('id'),
                 TextInput::make('name')
                     ->unique()
                     ->required(),
@@ -48,7 +50,6 @@ class ScholarshipForm
                     ->schema([
                         Select::make('criteria_id')
                             ->required()
-                            ->unique()
                             ->hiddenLabel()
                             ->validationMessages([
                                 'unique' => 'Kriteria sudah terdaftar pada beasiswa ini.',
