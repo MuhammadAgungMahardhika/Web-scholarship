@@ -8,11 +8,15 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 # --- MUAT MODEL SATU KALI SAAT SERVER DIMULAI ---
-# Ini jauh lebih efisien daripada memuatnya setiap kali ada request
-base_path = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(base_path, 'scholarship_model.joblib')
-model = None
+# Path ke direktori tempat script ini berada
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Naik satu tingkat untuk mendapatkan direktori utama proyek
+project_root = os.path.dirname(script_dir)
 
+# Sekarang path ke model sudah benar
+model_path = os.path.join(project_root, 'storage', 'app', 'ml', 'scholarship_model.joblib')
+
+model = None
 try:
     model = joblib.load(model_path)
     print(">>> Model 'scholarship_model.joblib' berhasil dimuat.")
@@ -30,25 +34,26 @@ def predict():
         return jsonify({'error': 'Model is not loaded.'}), 500
 
     try:
-        # Ambil data JSON yang dikirim oleh Laravel
-        input_data = request.get_json()
+        input_data = request.get_json(force=True)
         
-        # Buat DataFrame dari input
-        df = pd.DataFrame([input_data], columns=['gpa', 'parent_income', 'final_score'])
+        # Pastikan kolom yang dibutuhkan ada di input
+        required_columns = ['gpa', 'parent_income', 'final_score']
+        if not all(col in input_data for col in required_columns):
+            return jsonify({'error': 'Missing required columns in input data.'}), 400
+
+        df = pd.DataFrame([input_data], columns=required_columns)
         
-        # Lakukan prediksi probabilitas
         probability = model.predict_proba(df)[0]
         
-        # Kembalikan hasil sebagai JSON
         return jsonify({
             'prediction': int(probability.argmax()),
             'probability_approved': float(probability[1])
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        # Menangkap error lain saat prediksi, misal tipe data salah
+        return jsonify({'error': f'Prediction error: {str(e)}'}), 400
 
 
 # --- JALANKAN SERVER ---
 if __name__ == '__main__':
-    # Jalankan di port 5000
     app.run(port=5000, debug=True)

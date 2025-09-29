@@ -1,0 +1,102 @@
+## Dokumentasi Alur Kerja Aplikasi Beasiswa (Laravel + Python ML)
+Panduan ini mencakup cara menyiapkan, melatih model, dan menjalankan aplikasi untuk pengembangan.
+
+### Prasyarat
+Pastikan perangkat berikut sudah terinstall di sistem Anda:
+
+Git
+
+PHP & Composer
+
+Python 3.6+
+
+### ⚙️ 1. Penyiapan Awal (One-Time Setup)
+Lakukan langkah-langkah ini satu kali untuk setiap instalasi proyek baru.
+
+Setup Proyek Laravel:
+
+Bash
+
+git clone [URL_REPOSITORY_ANDA]
+cd [NAMA_FOLDER_PROYEK]
+composer install
+cp .env.example .env
+# Buka file .env dan atur koneksi database Anda
+php artisan key:generate
+php artisan migrate --seed
+Siapkan Lingkungan Python (venv):
+Buat dan aktifkan virtual environment di direktori utama proyek.
+
+Bash
+
+# 1. Buat venv
+py -m venv venv
+
+# 2. Aktifkan venv
+.\venv\Scripts\activate
+(Terminal Anda akan diawali dengan (venv))
+
+Install Library Python:
+Pastikan venv aktif. Buat file python_requirements.txt di root proyek dengan isi berikut:
+
+Flask
+pandas
+scikit-learn
+joblib
+Kemudian, install semua library dari file tersebut:
+
+Bash
+
+pip install -r python_requirements.txt
+### 🧠 2. Pelatihan Model Machine Learning
+Lakukan proses ini saat pertama kali atau saat data historis (approved/rejected) di database berubah signifikan.
+
+Aktifkan venv (jika belum aktif):
+
+Bash
+
+.\venv\Scripts\activate
+Ekspor Data & Latih Model:
+Jalankan kedua perintah ini secara berurutan.
+
+Bash
+
+# Ekspor data dari Laravel ke storage/app/ml/training_data.csv
+php artisan ml:export-data
+
+# Latih model dari file .csv dan simpan hasilnya di storage/app/ml/
+py python_scripts/train_model.py
+Output yang Dihasilkan:
+
+storage/app/ml/training_data.csv
+
+storage/app/ml/scholarship_model.joblib
+
+### 🚀 3. Menjalankan Aplikasi (Pengembangan Harian)
+Anda memerlukan dua terminal terpisah yang berjalan bersamaan.
+
+Terminal 1: Jalankan API Server Python
+
+Buka terminal, masuk ke direktori proyek.
+
+Aktifkan venv: .\venv\Scripts\activate
+
+Jalankan server Flask dari folder python_scripts:
+
+Bash
+
+py python_scripts/api.py
+Biarkan terminal ini tetap terbuka.
+
+Terminal 2: Jalankan Server Laravel
+
+Buka terminal baru, masuk ke direktori proyek.
+
+Jalankan server Laravel seperti biasa:
+
+Bash
+
+php artisan serve
+Biarkan terminal ini tetap terbuka.
+
+Aplikasi Anda kini dapat diakses di http://127.0.0.1:8000.

@@ -27,7 +27,12 @@ class ExportTrainingData extends Command
             ->with('student')->get();
 
         foreach ($applications as $app) {
-            if (!$app->student) continue; // Lewati jika data student tidak ada
+            // Lewati jika data student tidak ada ATAU jika salah satu fitur penting bernilai null
+            if (!$app->student || is_null($app->student->gpa) || is_null($app->student->parent_income) || is_null($app->final_score)) {
+                $this->warn("Melewati aplikasi ID: {$app->id} karena data fitur tidak lengkap.");
+                continue;
+            }
+
             $writer->insertOne([
                 $app->student->gpa,
                 $app->student->parent_income,
