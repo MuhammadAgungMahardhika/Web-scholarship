@@ -19,7 +19,7 @@ class ExportTrainingData extends Command
         $writer = Writer::createFromPath($path, 'w+');
 
         // Header CSV (ini akan menjadi fitur model Anda)
-        $headers = ['final_score', 'status'];
+        $headers = ['gpa', 'parent_income', 'final_score', 'status'];
         $writer->insertOne($headers);
 
         // Ambil aplikasi yang statusnya sudah final
@@ -29,6 +29,8 @@ class ExportTrainingData extends Command
         foreach ($applications as $app) {
             if (!$app->student) continue; // Lewati jika data student tidak ada
             $writer->insertOne([
+                $app->student->gpa,
+                $app->student->parent_income,
                 $app->final_score,
                 $app->status === ApplicationStatusEnum::Approved->value ? 1 : 0, // Target (1=approved, 0=rejected)
             ]);

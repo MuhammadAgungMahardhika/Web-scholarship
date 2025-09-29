@@ -1,1 +1,93 @@
-.\venv\Scripts\activate //jalankan virtual machine python
+Tentu, mari kita susun catatan Anda menjadi sebuah dokumentasi alur kerja yang rapi dan mudah diikuti.
+
+## Dokumentasi Alur Kerja Aplikasi Beasiswa (Laravel + Python ML)
+Dokumen ini menjelaskan langkah-langkah untuk menyiapkan dan menjalankan aplikasi, mulai dari instalasi awal hingga menjalankan server untuk pengembangan sehari-hari.
+
+## ⚙️ 1. Penyiapan Awal (One-Time Setup)
+Langkah-langkah ini hanya perlu dilakukan satu kali saat Anda pertama kali mengatur proyek di komputer baru.
+
+Clone Proyek & Install Dependensi PHP
+
+Bash
+
+git clone https://www.fda.gov/drugs/abbreviated-new-drug-application-anda/abbreviated-new-drug-application-anda-forms-and-submission-requirements
+cd [nama-folder-proyek]
+composer install
+cp .env.example .env
+php artisan key:generate
+# Atur koneksi database Anda di file .env
+php artisan migrate --seed
+Buat Virtual Environment Python
+Pastikan Python sudah terinstall, lalu buat lingkungan terisolasi untuk proyek ini.
+
+Bash
+
+py -m venv venv
+Aktifkan Virtual Environment
+Setiap kali Anda akan bekerja dengan Python, Anda harus mengaktifkan venv terlebih dahulu.
+
+Bash
+
+.\venv\Scripts\activate
+(Terminal Anda akan diawali dengan (venv))
+
+Install Library Python
+Dengan venv aktif, install semua library yang dibutuhkan.
+
+Bash
+
+pip install Flask pandas scikit-learn joblib
+## 🧠 2. Pelatihan Model Machine Learning
+Proses ini mengubah data historis aplikasi Anda menjadi sebuah "otak" prediksi (scholarship_model.joblib). Lakukan proses ini saat data historis aplikasi sudah banyak berubah atau untuk pertama kalinya.
+
+Aktifkan venv (jika belum aktif)
+
+Bash
+
+.\venv\Scripts\activate
+Ekspor Data Latih dari Laravel
+Perintah ini akan membuat file storage/app/ml/training_data.csv.
+
+Bash
+
+php artisan ml:export-data
+Latih Model dengan Python
+Perintah ini akan membaca file CSV dan menghasilkan storage/app/ml/scholarship_model.joblib.
+
+Bash
+
+py storage/app/ml/train_model.py
+Output yang Diharapkan:
+
+File training_data.csv
+
+File scholarship_model.joblib
+
+## 🚀 3. Alur Kerja Harian (Menjalankan Aplikasi)
+Ini adalah langkah-langkah yang Anda lakukan setiap hari untuk menjalankan aplikasi di lingkungan pengembangan. Anda akan memerlukan dua terminal terpisah.
+
+Terminal 1: Jalankan API Server Python
+
+Buka terminal dan masuk ke direktori proyek.
+
+Aktifkan venv:
+
+Bash
+
+.\venv\Scripts\activate
+Jalankan server Flask:
+
+Bash
+
+py storage/app/ml/api.py
+Biarkan terminal ini tetap terbuka.
+
+Terminal 2: Jalankan Server Laravel
+
+Buka terminal baru dan masuk ke direktori proyek.
+
+Jalankan server Laravel seperti biasa:
+
+Bash
+
+php artisan serve

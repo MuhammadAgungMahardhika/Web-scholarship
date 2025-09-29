@@ -10,6 +10,7 @@ use App\Models\Enums\ApplicationDataStatusEnum;
 use App\Models\Enums\ApplicationStatusEnum;
 use App\Models\Enums\CriteriaDataTypeEnum;
 use App\Models\Enums\DocumentStatusEnum;
+use App\Services\PredictionService;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -31,6 +32,7 @@ use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rules\Unique;
 use Illuminate\Support\Str;
 
@@ -54,6 +56,32 @@ class ApplicationForm
                 'xl' => 4,
             ])
             ->components([
+                TextEntry::make('ml_recommendation')
+                    ->label('Prediksi')
+                    ->html()
+                    ->visibleOn(['view', 'edit'])
+                    ->getStateUsing(function ($record) {
+                        $predictionService = new PredictionService();
+                        $result = $predictionService->getPrediction($record);
+
+                        if (!$result || isset($result['error'])) {
+                            return '<span class="text-gray-500">Prediksi tidak tersedia.</span>';
+                        }
+
+                        $probability = $result['probability_approved'] * 100;
+                        if ($result['prediction'] == 1) {
+                            $badgeColor = 'success';
+                            $text = 'Direkomendasikan Lulus';
+                        } else {
+                            $badgeColor = 'danger';
+                            $text = 'Tidak Direkomendasikan';
+                        }
+
+                        return new HtmlString(
+                            '<span class="fi-badge fi-color-' . $badgeColor . '">' . $text . '</span>' .
+                                '<p class="mt-1 text-sm text-gray-500">Probabilitas Disetujui: <strong>' . number_format($probability, 2) . '%</strong></p>'
+                        );
+                    }),
                 Section::make([
                     Select::make('scholarship_id')
                         ->relationship(

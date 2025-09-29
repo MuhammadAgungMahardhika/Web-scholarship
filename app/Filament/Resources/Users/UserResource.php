@@ -27,10 +27,10 @@ class UserResource extends Resource
         return UserForm::configure($schema);
     }
 
-    public static function infolist(Schema $schema): Schema
-    {
-        return UserInfolist::configure($schema);
-    }
+    // public static function infolist(Schema $schema): Schema
+    // {
+    //     return UserInfolist::configure($schema);
+    // }
 
     public static function table(Table $table): Table
     {

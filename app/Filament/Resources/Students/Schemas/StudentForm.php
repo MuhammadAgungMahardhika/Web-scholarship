@@ -75,8 +75,11 @@ class StudentForm
                     ->tel(),
                 DatePicker::make('date_of_birth'),
                 TextInput::make('gpa')
+                    ->required()
                     ->numeric(),
                 TextInput::make('parent_income')
+                    ->required()
+                    ->prefix('Rp.')
                     ->numeric(),
             ]);
     }
