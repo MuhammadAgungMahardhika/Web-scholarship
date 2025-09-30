@@ -94,8 +94,11 @@ class PermissionAndRoleSeeder extends Seeder
             'approve-application',
             'reject-application',
 
+            'view-all-student-application',
             'select-all-student-application',
-            'verify-document-application'
+            'verify-document-application',
+
+            'view-prediction-application'
         ];
         $applicationDataPermissions = [
             'view-any-application-data',

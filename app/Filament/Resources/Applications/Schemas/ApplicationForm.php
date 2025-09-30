@@ -3,16 +3,9 @@
 namespace App\Filament\Resources\Applications\Schemas;
 
 use App\Filament\Resources\LabJobResource\Actions\ApplicationDataStatusAction;
-use App\Models\Application;
-use App\Models\ApplicationData;
-use App\Models\Document;
 use App\Models\Enums\ApplicationDataStatusEnum;
 use App\Models\Enums\ApplicationStatusEnum;
-use App\Models\Enums\CriteriaDataTypeEnum;
-use App\Models\Enums\DocumentStatusEnum;
 use App\Services\PredictionService;
-use Closure;
-use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
@@ -22,16 +15,13 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rules\Unique;
 use Illuminate\Support\Str;
@@ -39,7 +29,8 @@ use Illuminate\Support\Str;
 class ApplicationForm
 {
     public const PERMISSION_SELECT_ALL_STUDENT =  'select-all-student-application';
-    public const PERMISSION_VERIFY_DOCUMENT =  'verify-document-application';
+    public const PERMISSION_VERIFY_DOCUMENT_APPLICATION =  'verify-document-application';
+    public const PERMISSION_VIEW_PREDICTION_APPLICATION =  'view-prediction-application';
 
     protected static function isAuthorized(string $permission): bool
     {
@@ -49,6 +40,7 @@ class ApplicationForm
 
     public static function configure(Schema $schema): Schema
     {
+        $studentId = Auth::user()->student?->id;
         return $schema
             ->columns([
                 'sm' => 2,
@@ -60,6 +52,7 @@ class ApplicationForm
                     ->label('Prediksi')
                     ->html()
                     ->visibleOn(['view', 'edit'])
+                    ->visible(fn() => static::isAuthorized(static::PERMISSION_VIEW_PREDICTION_APPLICATION))
                     ->getStateUsing(function ($record) {
                         $predictionService = new PredictionService();
                         $result = $predictionService->getPrediction($record);
@@ -96,23 +89,27 @@ class ApplicationForm
                         ->required()
                         ->preload(),
                     Select::make('student_id')
-                        ->relationship('student', 'fullname', modifyQueryUsing: function ($query) {
-                            if (static::isAuthorized(static::PERMISSION_SELECT_ALL_STUDENT)) {
-                                return $query;
-                            }
-                            return $query->where('student_id', Auth::user()->student->id);
-                        })
+                        ->relationship(
+                            'student',
+                            'fullname',
+                            modifyQueryUsing: fn($query) =>
+                            static::isAuthorized(static::PERMISSION_SELECT_ALL_STUDENT)
+                                ? $query
+                                : ($studentId
+                                    ? $query->where('id', $studentId)
+                                    : $query->whereRaw('0=1'))
+                        )
                         ->searchable()
                         ->required()
                         ->preload()
-                        ->default(Auth::user()->student->id ?? null)
-                        ->live() // Tambahkan live untuk reaktif
+                        ->default($studentId)
+                        ->live()
                         ->unique(
                             ignoreRecord: true,
-                            modifyRuleUsing: function (Unique $rule, Get $get) {
-                                return $rule->where('scholarship_id', $get('scholarship_id'));
-                            }
-                        )->validationMessages([
+                            modifyRuleUsing: fn(Unique $rule, Get $get)
+                            => $rule->where('scholarship_id', $get('scholarship_id'))
+                        )
+                        ->validationMessages([
                             'unique' => 'Sudah terdaftar pada beasiswa ini.',
                         ]),
                     DatePicker::make('submission_date')
@@ -145,7 +142,7 @@ class ApplicationForm
                             ->label('Komentar')
                             ->autosize()
                             ->live()
-                            ->disabled(fn() => !static::isAuthorized(static::PERMISSION_VERIFY_DOCUMENT))
+                            ->disabled(fn() => !static::isAuthorized(static::PERMISSION_VERIFY_DOCUMENT_APPLICATION))
                             ->visible(fn($record) => $record->note ? true : false),
                         TextEntry::make('status')
                             ->size(TextSize::Large)

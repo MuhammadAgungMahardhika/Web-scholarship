@@ -16,13 +16,29 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ApplicationsTable
 {
+    public const PERMISSION_VIEW_ALL_STUDENT_APPLICATION = 'view-all-student-application';
+    public const PERMISSION_SELECT_ALL_STUDENT_APPLICATION =  'select-all-student-application';
+    public const PERMISSION_APPROVE_APPLICATION = 'approve-application';
+    protected static function isAuthorized(string $permission): bool
+    {
+        return Auth::user()->can($permission);
+    }
+
     public static function configure(Table $table): Table
     {
+        $studentId = Auth::user()->student?->id;
         return $table
+            ->modifyQueryUsing(
+                fn($query)
+                => static::isAuthorized(static::PERMISSION_VIEW_ALL_STUDENT_APPLICATION)
+                    ? $query
+                    : ($studentId ? $query->where('student_id', $studentId) : $query->whereRaw('0=1'))
+            )
             ->defaultSort('final_score', 'desc')
             ->columns([
                 TextColumn::make('scholarship.name')
@@ -62,14 +78,17 @@ class ApplicationsTable
                     ->label('Fakultas')
                     ->relationship('student.faculty', 'name')
                     ->searchable()
+                    ->visible(fn() => static::isAuthorized(static::PERMISSION_VIEW_ALL_STUDENT_APPLICATION))
                     ->preload(),
                 SelectFilter::make('student.department')
                     ->label('Departemen')
+                    ->visible(fn() => static::isAuthorized(static::PERMISSION_VIEW_ALL_STUDENT_APPLICATION))
                     ->relationship('student.department', 'name')
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('student_id')
                     ->label('Mahasiswa')
+                    ->visible(fn() => static::isAuthorized(static::PERMISSION_VIEW_ALL_STUDENT_APPLICATION))
                     ->relationship('student', 'fullname')
                     ->searchable()
                     ->preload(),
@@ -88,6 +107,7 @@ class ApplicationsTable
                         ->label(ApplicationStatusEnum::Approved->label())
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
+                        ->authorize(fn() => static::isAuthorized(static::PERMISSION_APPROVE_APPLICATION))
                         ->requiresConfirmation()
                         ->action(function (Collection $records) {
                             $validRecords = $records->filter(function ($record) {

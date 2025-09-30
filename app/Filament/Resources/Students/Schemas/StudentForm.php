@@ -29,7 +29,20 @@ class StudentForm
                     ->unique()
                     ->relationship('user', 'name')
                     ->preload()
-                    ->searchable(),
+                    ->searchable()
+                    ->createOptionModalHeading('Buat akun')
+                    ->createOptionForm(fn() => [
+                        TextInput::make('name')
+                            ->required(),
+                        TextInput::make('email')
+                            ->label('Email address')
+                            ->email()
+                            ->required(),
+
+                        TextInput::make('password')
+                            ->password()
+                            ->required(),
+                    ]),
                 Select::make('faculty_id')
                     ->required()
                     ->relationship('faculty', 'name')
