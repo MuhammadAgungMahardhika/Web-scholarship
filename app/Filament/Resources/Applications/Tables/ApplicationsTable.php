@@ -141,7 +141,7 @@ class ApplicationsTable
 
                             if ($selectedCount > $availableQuota) {
                                 Notification::make()->title('Kuota Terlampaui!')->danger()
-                                    ->body("Sisa kuota hanya {$availableQuota}. Anda mencoba menyetujui {$selectedCount} aplikasi.")
+                                    ->body("Sisa kuota tidak mencukupi yaitu {$availableQuota}. Anda mencoba menyetujui {$selectedCount} aplikasi.")
                                     ->persistent()->send();
                                 return;
                             }

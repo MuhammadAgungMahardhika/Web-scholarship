@@ -8,6 +8,7 @@ use App\Models\ApplicationScore;
 use App\Models\Enums\ApplicationDataStatusEnum;
 use App\Models\Enums\ApplicationStatusEnum;
 use App\Models\Enums\DocumentStatusEnum;
+use App\Models\Scholarship;
 use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -76,10 +77,37 @@ class ApplicationService
             $record->status = $newStatus->value;
             $isSuccessed =   $record->save();
         }
+        // --- Status: Approved (Persetujuan, cek kuota untuk SATU aplikasi) ---
         if ($newStatus === ApplicationStatusEnum::Approved) {
+            $scholarship = $record->scholarship;
+
+            // Cek pra-syarat: Aplikasi HARUS sudah Verified
+            if ($record->status !== ApplicationStatusEnum::Verified->value) {
+                throw new Exception("Aplikasi harus berstatus 'Verified' sebelum dapat disetujui.");
+            }
+
+            // Cek kuota beasiswa
+            if (!$scholarship || is_null($scholarship->quota)) {
+                throw new Exception("Kuota untuk beasiswa '{$scholarship->name}' belum diatur.");
+            }
+
+            $availableQuota = $scholarship->quota - $scholarship->used_quota;
+
+            // Cek kuota
+            if ($availableQuota < 1) { // Karena kita hanya menyetujui satu aplikasi
+                throw new Exception("Sisa kuota beasiswa tidak mencukupi. Sisa kuota: {$availableQuota}.");
+            }
+
+            // Lakukan update status dan increment kuota
             $record->status = $newStatus->value;
-            $isSuccessed =   $record->save();
-            $record->scholarship->increment('used_quota', 1);
+            $isSuccessed = $record->save();
+
+            // Tambahkan kuota jika penyimpanan berhasil
+            if ($isSuccessed) {
+                // Periksa: Apakah aplikasi ini sebelumnya berstatus Approved? Seharusnya tidak.
+                // Kita asumsikan ini adalah transisi dari Verified ke Approved.
+                $record->scholarship->increment('used_quota', 1);
+            }
         }
         if ($newStatus === ApplicationStatusEnum::Rejected) {
             $record->status = $newStatus->value;

@@ -28,6 +28,7 @@ class ScholarshipPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('scholarship')
+            ->spa()
             ->path('scholarship')
             ->profile(isSimple: false)
             ->login()

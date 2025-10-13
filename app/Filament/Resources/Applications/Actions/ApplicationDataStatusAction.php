@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\LabJobResource\Actions;
+namespace App\Filament\Resources\Applications\Actions;
 
 use App\Models\ApplicationData;
 use App\Models\Enums\ApplicationDataStatusEnum;

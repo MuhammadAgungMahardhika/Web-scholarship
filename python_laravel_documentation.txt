@@ -63,13 +63,12 @@ Bash
 
 # Ekspor data dari Laravel ke storage/app/ml/training_data.csv
 php artisan ml:export-data
-
+Output yang Dihasilkan:
+storage/app/ml/training_data.csv
 # Latih model dari file .csv dan simpan hasilnya di storage/app/ml/
 py python_scripts/train_model.py
+
 Output yang Dihasilkan:
-
-storage/app/ml/training_data.csv
-
 storage/app/ml/scholarship_model.joblib
 
 ### 🚀 3. Menjalankan Aplikasi (Pengembangan Harian)

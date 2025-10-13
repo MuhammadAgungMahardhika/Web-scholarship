@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Applications\Schemas;
 
-use App\Filament\Resources\LabJobResource\Actions\ApplicationDataStatusAction;
+use App\Filament\Resources\Applications\Actions\ApplicationDataStatusAction;
 use App\Models\Enums\ApplicationDataStatusEnum;
 use App\Models\Enums\ApplicationStatusEnum;
 use App\Services\PredictionService;
@@ -51,7 +51,7 @@ class ApplicationForm
                 TextEntry::make('ml_recommendation')
                     ->label('Prediksi')
                     ->html()
-                    ->visibleOn(['view', 'edit'])
+
                     ->visible(fn() => static::isAuthorized(static::PERMISSION_VIEW_PREDICTION_APPLICATION))
                     ->getStateUsing(function ($record) {
                         $predictionService = new PredictionService();
@@ -74,7 +74,7 @@ class ApplicationForm
                             '<span class="fi-badge fi-color-' . $badgeColor . '">' . $text . '</span>' .
                                 '<p class="mt-1 text-sm text-gray-500">Probabilitas Disetujui: <strong>' . number_format($probability, 2) . '%</strong></p>'
                         );
-                    }),
+                    })->visibleOn(['view', 'edit']),
                 Section::make([
                     Select::make('scholarship_id')
                         ->relationship(
