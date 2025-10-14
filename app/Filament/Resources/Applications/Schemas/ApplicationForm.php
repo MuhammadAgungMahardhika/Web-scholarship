@@ -100,7 +100,7 @@ class ApplicationForm
                                     ? $query->where('id', $studentId)
                                     : $query->whereRaw('0=1'))
                         )
-                        ->helperText(function ($studentId) {
+                        ->helperText(function () use ($studentId) {
                             if ($studentId) {
                                 return null; // Tidak menampilkan apa-apa jika profil sudah ada
                             }
