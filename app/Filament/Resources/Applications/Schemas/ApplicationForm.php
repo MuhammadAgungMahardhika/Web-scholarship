@@ -52,14 +52,13 @@ class ApplicationForm
                 TextEntry::make('ml_recommendation')
                     ->label('Prediksi')
                     ->html()
-
                     ->visible(fn() => static::isAuthorized(static::PERMISSION_VIEW_PREDICTION_APPLICATION))
                     ->getStateUsing(function ($record) {
                         $predictionService = new PredictionService();
                         $result = $predictionService->getPrediction($record);
 
                         if (!$result || isset($result['error'])) {
-                            return '<span class="text-gray-500">Prediksi tidak tersedia.</span>';
+                            return '<span class="text-gray-500">Prediksi belum aktif.</span>';
                         }
 
                         $probability = $result['probability_approved'] * 100;
@@ -101,7 +100,7 @@ class ApplicationForm
                                     : $query->whereRaw('0=1'))
                         )
                         ->helperText(function () use ($studentId) {
-                            if ($studentId) {
+                            if ($studentId ||  static::isAuthorized(static::PERMISSION_SELECT_ALL_STUDENT)) {
                                 return null; // Tidak menampilkan apa-apa jika profil sudah ada
                             }
 

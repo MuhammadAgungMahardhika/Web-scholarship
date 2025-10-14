@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Application;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http; // <-- Ganti Process dengan Http
 use Illuminate\Support\Facades\Log;
 
@@ -21,15 +22,23 @@ class PredictionService
         ];
 
         // Kirim request POST ke API Python lokal kita
-        $response = Http::timeout(5)->post('http://127.0.0.1:5000/predict', $features);
+        try { // <-- PERUBAHAN: Bungkus dengan try...catch
+            $response = Http::timeout(5)->post('http://127.0.0.1:5000/predict', $features);
 
-        // Cek jika request berhasil dan kembalikan hasilnya
-        if ($response->successful()) {
-            return $response->json();
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            // Jika response tidak sukses, catat errornya
+            Log::error('Python API returned an error: ', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+            return null;
+        } catch (ConnectionException $e) {
+            // <-- PERUBAHAN: Tangani jika server Python mati
+            Log::error('Failed to connect to Python API: ' . $e->getMessage());
+            return null;
         }
-
-        // Jika gagal, catat error (opsional)
-        Log::error('Failed to connect to Python API: ' . $response->body());
-        return null;
     }
 }

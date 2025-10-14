@@ -100,9 +100,6 @@ class ApplicationsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    // Di dalam file ApplicationsTable.php
-
                     BulkAction::make('approve')
                         ->label(ApplicationStatusEnum::Approved->label())
                         ->icon('heroicon-o-check-circle')
