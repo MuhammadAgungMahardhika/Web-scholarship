@@ -13,11 +13,13 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class StudentForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $userId = Auth::user()?->id;
         return $schema
             ->columns([
                 'sm' => 2,
@@ -27,8 +29,21 @@ class StudentForm
             ->components([
                 Select::make('user_id')
                     ->required()
-                    ->unique()
-                    ->relationship('user', 'name', modifyQueryUsing: fn($query) => $query->whereDoesntHave('student'))
+                    ->unique(ignoreRecord: true)
+                    ->relationship(
+                        'user',
+                        'name',
+                        modifyQueryUsing: function ($query, $get) {
+                            // Ambil user_id dari record yang sedang di-edit (jika ada)
+                            $currentUserId = $get('user_id');
+
+                            $query->where(function ($q) use ($currentUserId) {
+                                $q->whereDoesntHave('student') // user yang belum punya student
+                                    ->orWhere('id', $currentUserId); // tambahkan user milik record ini
+                            });
+                        }
+
+                    )
                     ->preload()
                     ->searchable()
                     ->createOptionModalHeading('Buat akun')
