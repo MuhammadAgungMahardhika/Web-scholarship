@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Applications\Schemas;
 
+use App\Filament\Pages\EditProfile;
 use App\Filament\Resources\Applications\Actions\ApplicationDataStatusAction;
 use App\Models\Enums\ApplicationDataStatusEnum;
 use App\Models\Enums\ApplicationStatusEnum;
@@ -99,7 +100,18 @@ class ApplicationForm
                                     ? $query->where('id', $studentId)
                                     : $query->whereRaw('0=1'))
                         )
-                        ->helperText('Jika Anda tidak menemukan nama Anda, silakan lengkapi data mahasiswa pada menu profil.')
+                        ->helperText(function ($studentId) {
+                            if ($studentId) {
+                                return null; // Tidak menampilkan apa-apa jika profil sudah ada
+                            }
+
+                            // Dapatkan URL ke halaman edit profil secara dinamis
+                            $profileUrl = EditProfile::getUrl();
+                            // Buat pesan dengan link HTML
+                            return new HtmlString(
+                                'Profil mahasiswa Anda belum lengkap. Silakan <a href="' . $profileUrl . '" class="text-primary-600 hover:underline">lengkapi data di sini</a>.'
+                            );
+                        })
                         ->searchable()
                         ->required()
                         ->preload()
