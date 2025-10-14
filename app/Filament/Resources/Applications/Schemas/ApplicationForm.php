@@ -99,6 +99,7 @@ class ApplicationForm
                                     ? $query->where('id', $studentId)
                                     : $query->whereRaw('0=1'))
                         )
+                        ->helperText('Jika Anda tidak menemukan nama Anda, silakan lengkapi data mahasiswa pada menu profil.')
                         ->searchable()
                         ->required()
                         ->preload()

@@ -60,6 +60,8 @@ class StudentForm
                             ->required(),
                         Select::make('roles')
                             ->label('Hak akses')
+                            ->multiple()
+                            ->maxItems(1)
                             ->relationship('roles', 'name')
                             ->searchable()
                             ->preload()

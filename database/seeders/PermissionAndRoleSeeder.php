@@ -135,18 +135,21 @@ class PermissionAndRoleSeeder extends Seeder
         $roles = [
             'admin' => Permission::all(),
             'student' =>
-            array_merge(
+            [
                 'view-any-application',
                 'view-application',
                 'create-application',
                 'update-application',
                 'delete-application',
-
                 'request-verify-application',
                 'view-prediction-application',
-                $applicationDataPermissions,
 
-            ),
+                'view-any-application-data',
+                'view-application-data',
+                'create-application-data',
+                'update-application-data',
+                'delete-application-data',
+            ],
         ];
 
         // Membuat roles dan memberikan permissions
