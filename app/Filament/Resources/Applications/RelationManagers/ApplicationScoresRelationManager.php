@@ -26,7 +26,7 @@ class ApplicationScoresRelationManager extends RelationManager
     protected static string $relationship = 'applicationScores';
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
-        return $ownerRecord->status === ApplicationStatusEnum::Verified->value;
+        return in_array($ownerRecord->status, [ApplicationStatusEnum::Verified->value, ApplicationStatusEnum::Approved->value, ApplicationStatusEnum::Rejected->value]);
     }
     public function form(Schema $schema): Schema
     {
