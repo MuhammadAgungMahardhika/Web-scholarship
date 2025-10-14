@@ -68,15 +68,18 @@ enum RoleEnum: string
     }
 
     /**
-     * Mendapatkan prefix panel berdasarkan peran
+     * Menentukan apakah sebuah peran adalah peran inti sistem yang tidak boleh diubah/dihapus.
+     * Logika ini digunakan oleh RolePolicy.
      *
-     * @return string
+     * @param string $roleId
+     * @return bool
      */
-    public function getPanelPrefix(): ?string
+
+    public static function isCoreSystemRole(int $roleId): bool
     {
-        return match ($this) {
-            self::Admin => 'admin',
-            self::Student => 'student',
-        };
+        return in_array($roleId, [
+            self::Admin->id(),
+            self::Student->id(),
+        ]);
     }
 }

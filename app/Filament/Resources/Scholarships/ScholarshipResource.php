@@ -21,7 +21,7 @@ class ScholarshipResource extends Resource
 {
     protected static ?string $model = Scholarship::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::AcademicCap;
 
     public static function form(Schema $schema): Schema
     {
