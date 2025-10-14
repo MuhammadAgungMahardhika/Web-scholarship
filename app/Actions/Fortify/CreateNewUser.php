@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\Enums\RoleEnum;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -19,17 +20,27 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
+        $messages = [
+            'password.min' => 'Password minimal 8 karakter',
+            'username.max' => 'Username maksimal 15 karakter',
+            'username.min' => 'Username minimal 3 karakter',
+        ];
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'min:3', 'max:15', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => $this->passwordRules(),
+            'password' =>  $this->passwordRules(),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
-        ])->validate();
+        ], $messages)->validate();
 
-        return User::create([
+        $user =  User::create([
             'name' => $input['name'],
+            'username' => $input['username'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+
+        $user->assignRole($input['role'] ?? RoleEnum::Student->value);
+        return $user;
     }
 }

@@ -75,6 +75,11 @@
 
                             <!-- Lupa Password dan Tombol Login -->
                             <div class="flex items-center justify-end mt-4">
+                                <!-- Tombol Register -->
+                                <a class="underline text-sm text-dark hover:text-gray-300 pe-4"
+                                    href="{{ route('register') }}">
+                                    {{ __('Register') }}
+                                </a>
                                 <x-button id="loginButton" type="submit"
                                     class="bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-display: swap flex items-center justify-center min-w-[100px]">
                                     <span id="buttonText">{{ __('Log in') }}</span>
@@ -91,6 +96,7 @@
                                         Processing...
                                     </span>
                                 </x-button>
+
 
                             </div>
                         </form>

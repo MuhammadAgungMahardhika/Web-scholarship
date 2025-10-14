@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Enums\RoleEnum;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -24,6 +25,6 @@ class UserSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        $adminUser->assignRole('admin');
+        $adminUser->assignRole(RoleEnum::Admin->value);
     }
 }

@@ -9,6 +9,10 @@ Route::get('/', function () {
     return view('auth.login');
 })->middleware(RedirectIfLoggedIn::class)->name('home');
 
+Route::get('/register', function () {
+    return view('auth.register');
+})->middleware(RedirectIfLoggedIn::class)->name('register');
+
 
 
 Route::get('/test-python', function () {
