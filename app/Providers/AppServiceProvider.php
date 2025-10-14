@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Responses\LogoutResponse;
 use Filament\Actions\Action;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Tables\Enums\PaginationMode;
@@ -9,6 +10,7 @@ use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Contracts\LoginResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,7 +19,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(
+            LoginResponse::class,
+            \App\Http\Responses\LoginResponse::class
+        );
+        $this->app->bind(\Filament\Auth\Http\Responses\Contracts\LogoutResponse::class, LogoutResponse::class);
     }
 
     /**
@@ -33,11 +39,8 @@ class AppServiceProvider extends ServiceProvider
             ->paginationMode(PaginationMode::Simple)
             ->deferFilters(false));
 
-        $googleMapsAPi = config('global.google_maps_api_key');
-
-
         FilamentAsset::registerScriptData([
             'baseUrl' => url(''),
-        ]);;
+        ]);
     }
 }

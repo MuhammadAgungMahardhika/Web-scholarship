@@ -1,12 +1,15 @@
 <?php
 
+use App\Http\Middleware\RedirectIfLoggedIn;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('auth.login');
+})->middleware(RedirectIfLoggedIn::class)->name('home');
+
+
 
 Route::get('/test-python', function () {
     $scriptPath = storage_path('app/ml/add.py');
@@ -28,4 +31,14 @@ Route::get('/test-python', function () {
     } catch (ProcessFailedException $exception) {
         return $exception->getMessage();
     }
+});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 });

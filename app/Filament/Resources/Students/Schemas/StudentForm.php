@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Students\Schemas;
 
 use App\Filament\Resources\Users\Schemas\UserForm;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -27,21 +28,32 @@ class StudentForm
                 Select::make('user_id')
                     ->required()
                     ->unique()
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'name', modifyQueryUsing: fn($query) => $query->whereDoesntHave('student'))
                     ->preload()
                     ->searchable()
                     ->createOptionModalHeading('Buat akun')
                     ->createOptionForm(fn() => [
                         TextInput::make('name')
                             ->required(),
+                        TextInput::make('username')
+                            ->required(),
                         TextInput::make('email')
                             ->label('Email address')
                             ->email()
                             ->required(),
-
+                        Select::make('roles')
+                            ->label('Hak akses')
+                            ->multiple()
+                            ->relationship('roles', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->dehydrated(false),
                         TextInput::make('password')
                             ->password()
                             ->required(),
+                        Checkbox::make('is_active')
+                            ->label('Aktif ?')
+                            ->default(true),
                     ]),
                 Select::make('faculty_id')
                     ->required()

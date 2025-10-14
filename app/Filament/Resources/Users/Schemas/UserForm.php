@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -14,6 +15,8 @@ class UserForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->required(),
+                TextInput::make('username')
                     ->required(),
                 TextInput::make('email')
                     ->label('Email address')
@@ -29,6 +32,9 @@ class UserForm
                 TextInput::make('password')
                     ->password()
                     ->required(),
+                Checkbox::make('is_active')
+                    ->label('Aktif ?')
+                    ->default(true),
             ]);
     }
 }

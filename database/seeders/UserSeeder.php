@@ -16,9 +16,10 @@ class UserSeeder extends Seeder
     {
         $adminUser =  User::create([
             'name' => 'admin',
+            'username' => 'admin', // Username untuk admin
             'email' => 'admin@example.com', // Anda bisa ganti email ini
             'password' => Hash::make('123456'), // Password default yang di-hash
-            // 'is_active' => true,
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
