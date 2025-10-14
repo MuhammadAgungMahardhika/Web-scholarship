@@ -12,7 +12,7 @@
         }
     </style>
     <!-- Logo bagian atas (tetap di sudut kiri atas) -->
-    <div class="absolute top-0 left-0 z-10 " style="padding: 8px; margin:20px">
+    <div class="absolute top-0 left-0 z-10" style="padding: 8px; margin:20px">
         <div class="absolute inset-0  rounded"></div>
         <img src="{{ asset(Config('global.logo')) }}" alt="{{ config('app.name') }} Logo" width="100" class="relative">
     </div>
@@ -30,7 +30,7 @@
             <div class="w-full lg:w-1/2 mx-auto">
                 <div class="flex flex-col sm:justify-center items-center">
                     <!-- Form Login -->
-                    <div class="w-full sm:max-w-md px-6 py-4 shadow-md rounded-lg">
+                    <div class="w-full sm:max-w-md px-6 py-4 shadow-md rounded-lg bg-overlay backdrop-blur-lg">
                         <!-- Menampilkan error validation jika ada -->
                         <x-validation-errors class="mb-4" />
 
@@ -50,7 +50,7 @@
 
                             <!-- Input Email -->
                             <div>
-                                <x-label for="identity" value="{{ __('Nip / Email') }}" class="text-white" />
+                                <x-label for="identity" value="{{ __('Nip / Email') }}" class="text-dark" />
                                 <x-input id="identity"
                                     class="block mt-1 w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
                                     type="text" name="identity" :value="old('email')" required autofocus
@@ -59,7 +59,7 @@
 
                             <!-- Input Password -->
                             <div class="mt-4">
-                                <x-label for="password" value="{{ __('Password') }}" class="text-white" />
+                                <x-label for="password" value="{{ __('Password') }}" class="text-dark" />
                                 <x-input id="password"
                                     class="block mt-1 w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
                                     type="password" name="password" required autocomplete="current-password" />
