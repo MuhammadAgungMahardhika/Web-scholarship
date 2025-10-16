@@ -3,6 +3,8 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\EditProfile;
+use App\Filament\Widgets\ApplicationStatusChart;
+use App\Filament\Widgets\ScholarshipStats;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -42,7 +44,9 @@ class ScholarshipPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
+                // AccountWidget::class,
+                ScholarshipStats::class,
+                ApplicationStatusChart::class,
                 // FilamentInfoWidget::class,
             ])
             ->navigationGroups([

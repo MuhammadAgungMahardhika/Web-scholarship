@@ -36,6 +36,7 @@ class ScholarshipForm
                 DatePicker::make('end_date')
                     ->required(),
                 TextInput::make('quota')
+                    ->required()
                     ->numeric(),
                 Toggle::make('is_active')
                     ->default(true)

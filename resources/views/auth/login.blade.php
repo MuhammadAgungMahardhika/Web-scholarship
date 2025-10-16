@@ -5,32 +5,83 @@
         body {
             overflow: hidden;
             height: 100%;
+            margin: 0;
+            padding: 0;
         }
 
         .bg-overlay {
             background-color: rgba(255, 255, 255, 0.2);
         }
+
+        /* Background wrapper yang responsif - posisi kanan */
+        .bg-wrapper {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 55%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-wrapper img {
+            max-width: 90%;
+            max-height: 80vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            opacity: 0.8;
+        }
+
+        /* Responsif untuk tablet */
+        @media (max-width: 1024px) {
+            .bg-wrapper {
+                width: 50%;
+            }
+
+            .bg-wrapper img {
+                max-height: 60vh;
+            }
+        }
+
+        /* Responsif untuk mobile - kembali ke center dengan opacity rendah */
+        @media (max-width: 768px) {
+            .bg-wrapper {
+                width: 100%;
+                left: 0;
+                right: auto;
+            }
+
+            .bg-wrapper img {
+                max-height: 40vh;
+                max-width: 70%;
+                opacity: 0.4;
+            }
+        }
     </style>
+
     <!-- Logo bagian atas (tetap di sudut kiri atas) -->
     <div class="absolute top-0 left-0 z-10" style="padding: 8px; margin:20px">
-        <div class="absolute inset-0  rounded"></div>
+        <div class="absolute inset-0 rounded"></div>
         <img src="{{ asset(Config('global.logo')) }}" alt="{{ config('app.name') }} Logo" width="100" class="relative">
     </div>
-    <!-- Background Image -->
-    <img src="{{ asset('images/education.svg') }}" alt="Background"
-        class="fixed top-0 left-0 w-full max-h-[90vh] object-cover opacity-80 z-[-1]">
 
-
+    <!-- Background Image dengan wrapper responsif -->
+    <div class="bg-wrapper">
+        <img src="{{ asset('images/education.svg') }}" alt="Background">
+    </div>
 
     <!-- Container untuk halaman login -->
-    <div class="fixed inset-0 flex items-center justify-center">
-        <!-- Wrapper untuk form login -->
-        <div class="w-full max-w-5xl rounded-xl  p-8 relative z-10 ">
-            <!-- Kolom Kanan: Form Login -->
-            <div class="w-full lg:w-1/2 mx-auto">
-                <div class="flex flex-col sm:justify-center items-center">
+    <div class="fixed inset-0 flex items-center justify-start px-4 lg:px-12">
+        <!-- Wrapper untuk form login - posisi kiri -->
+        <div class="w-full max-w-md rounded-xl p-8 relative z-10">
+            <div class="w-full">
+                <div class="flex flex-col justify-center items-stretch lg:items-start">
                     <!-- Form Login -->
-                    <div class="w-full sm:max-w-md px-6 py-4 shadow-md rounded-lg bg-overlay backdrop-blur-lg">
+                    <div class="w-full sm:max-w-md px-6 py-4 shadow-md rounded-lg bg-overlay ">
                         <!-- Menampilkan error validation jika ada -->
                         <x-validation-errors class="mb-4" />
 
@@ -96,8 +147,6 @@
                                         Processing...
                                     </span>
                                 </x-button>
-
-
                             </div>
                         </form>
                     </div>
