@@ -2,8 +2,6 @@
 
 namespace App\Models\Enums;
 
-use Filament\Support\Colors\Color;
-
 enum ApplicationDataStatusEnum: int
 {
 
