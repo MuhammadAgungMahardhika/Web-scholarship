@@ -13,7 +13,7 @@ class ApplicationInfolist
             ->components([
                 TextEntry::make('scholarship_id')
                     ->numeric(),
-                TextEntry::make('student_id')
+                TextEntry::make('student_number')
                     ->numeric(),
                 TextEntry::make('submission_date')
                     ->date(),

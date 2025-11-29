@@ -88,7 +88,7 @@ class ApplicationForm
                         ->searchable()
                         ->required()
                         ->preload(),
-                    Select::make('student_id')
+                    Select::make('student_number')
                         ->relationship(
                             'student',
                             'fullname',

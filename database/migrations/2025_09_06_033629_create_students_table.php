@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->id(); // Primary key
+
+            $table->string('student_number', 50); // NIM
+            $table->primary('student_number');
             $table->unsignedBigInteger('user_id')->unique(); // FK to users table (later)
             $table->unsignedBigInteger('faculty_id'); // FK to users table (later)
             $table->unsignedBigInteger('department_id'); // FK to users table (later)
@@ -20,8 +22,6 @@ return new class extends Migration
             // lokasi
             $table->unsignedBigInteger('province_id'); // FK to users table (later)
             $table->unsignedBigInteger('city_id'); // FK to users table (later)
-
-            $table->string('student_number', 50)->unique(); // NIM
             $table->string('fullname', 50); // NIM
             $table->text('address')->nullable();
             $table->string('phone_number', 50)->nullable();

@@ -2,12 +2,10 @@
 
 namespace App\Filament\Resources\Applications\Tables;
 
-use App\Models\Application;
 use App\Models\Enums\ApplicationStatusEnum;
 use App\Models\Scholarship;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
@@ -31,13 +29,13 @@ class ApplicationsTable
 
     public static function configure(Table $table): Table
     {
-        $studentId = Auth::user()->student?->id;
+        $studentId = Auth::user()->student?->student_number;
         return $table
             ->modifyQueryUsing(
                 fn($query)
                 => static::isAuthorized(static::PERMISSION_VIEW_ALL_STUDENT_APPLICATION)
                     ? $query
-                    : ($studentId ? $query->where('student_id', $studentId) : $query->whereRaw('0=1'))
+                    : ($studentId ? $query->where('student_number', $studentId) : $query->whereRaw('0=1'))
             )
             ->defaultSort('final_score', 'desc')
             ->columns([
@@ -86,7 +84,7 @@ class ApplicationsTable
                     ->relationship('student.department', 'name')
                     ->searchable()
                     ->preload(),
-                SelectFilter::make('student_id')
+                SelectFilter::make('student_number')
                     ->label('Mahasiswa')
                     ->visible(fn() => static::isAuthorized(static::PERMISSION_VIEW_ALL_STUDENT_APPLICATION))
                     ->relationship('student', 'fullname')

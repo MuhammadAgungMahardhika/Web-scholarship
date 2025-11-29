@@ -77,8 +77,8 @@ return new class extends Migration
                 ->on('scholarships')
                 ->onUpdate('cascade')
                 ->onDelete('restrict');
-            $table->foreign('student_id', 'fk_applications_student')
-                ->references('id')
+            $table->foreign('student_number', 'fk_applications_student')
+                ->references('student_number')
                 ->on('students')
                 ->onUpdate('cascade')
                 ->onDelete('restrict');

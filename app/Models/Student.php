@@ -11,7 +11,9 @@ class Student extends Model
     /** @use HasFactory<\Database\Factories\StudentFactory> */
     use HasFactory;
     use Blameable;
-
+    protected $primaryKey = 'student_number';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     public function applications()
     {

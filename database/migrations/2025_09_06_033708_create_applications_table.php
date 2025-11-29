@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('applications', function (Blueprint $table) {
             $table->id(); // Primary key
             $table->unsignedBigInteger('scholarship_id'); // FK to scholarships (added later)
-            $table->unsignedBigInteger('student_id');   // FK to students (added later)
+            $table->string('student_number');   // FK to students (added later)
             $table->date('submission_date'); // Date of submission
             $table->tinyInteger('status')->default(1); // Application status
 
@@ -26,7 +26,7 @@ return new class extends Migration
             // Indexes
             $table->index('status');
             $table->index('scholarship_id', 'idx_applications_scholarship');
-            $table->index('student_id', 'idx_applications_student');
+            $table->index('student_number', 'idx_applications_student');
         });
     }
 
