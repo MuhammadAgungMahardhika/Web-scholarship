@@ -41,7 +41,7 @@ class ApplicationForm
 
     public static function configure(Schema $schema): Schema
     {
-        $studentId = Auth::user()->student?->id;
+        $studentId = Auth::user()->student?->student_number;
         return $schema
             ->columns([
                 'sm' => 2,
@@ -96,7 +96,7 @@ class ApplicationForm
                             static::isAuthorized(static::PERMISSION_SELECT_ALL_STUDENT)
                                 ? $query
                                 : ($studentId
-                                    ? $query->where('id', $studentId)
+                                    ? $query->where('student_number', $studentId)
                                     : $query->whereRaw('0=1'))
                         )
                         ->helperText(function () use ($studentId) {
